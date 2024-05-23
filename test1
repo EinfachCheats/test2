@@ -1,0 +1,4216 @@
+--[[
+	
+	Gui2Lua Winning! ~ Ch0nky Code:tm:
+	
+	152 instances
+	
+	-> 10:07:2023 	-	fixed "Http requests can only be executed by game server" error when pressing "Play"
+					-	fixed modulescripts's "script" variable not being set properly
+					-	plugin will now retry fetching an api dump from the web if it did not fetch it successfully last time
+					
+					
+	-> 26:07:2023 	-	plugin will now cache instance property lists (slight performance improvement)
+					-	increased "max string length" threshold, plugin may generate less splits on large selections
+					
+					
+	-> 18:09:2023	- 	full plugin rewrite
+					-	splits of long scripts will now be created under a localscript instead of a folder
+					-	plugin now has single pass conversion, should be MUCH faster
+					-	added attributes
+					- 	fixed "allow plugin to acces ?" prompt
+					-	you can now disable automatic opening of scripts from the commandline
+						>	"shared.gv2.require("settings").data.autoOpenScripts = false" or "shared.gv2.require("settings").data.autoOpenScripts = true"
+						> 	"false" stands for disabled and "true" stands for enabled, setting this option WILL save		
+					
+					
+	-> 08:10:2023	-	added icon
+					
+					
+	-> 30:11:2023	-	output will now always be generated as one script (no more output splitting!)
+					-	fixed missing comma when generating big outputs
+					-	fixed duplicate processing when selecting an instance and its parent
+					-	fixed issue with default properties
+					-	fixed autoupdating api dump since roblox broke it
+					-	you can now change the default script creation type to "ModuleScript", "LocalScript" or "Script" from the commandline, for example:
+						>	"shared.gv2.require("settings").data.scriptCreationType = "Script""
+						>	you can use "ModuleScript", "LocalScript" or "Script"
+					
+					
+	-> 16:02:2024	-	improved studio version scanning algorithm, no more errors when parsing api dump
+					-	fixed properties that defaulted to nil being missed
+					
+					
+	-> 19:02:2024	-	fixed properties of type "Instance" not being converted properly
+					
+					
+	-> 17:03:2024	-	added support for Path2D
+					-	improved default variable names for different output types
+					-	fixed of properties of type "Instance" not being referenced when using roact or fusion
+	
+]]--
+
+local tbl =
+{
+	ScriptHubPaid = Instance.new("ScreenGui"),
+	Frame = Instance.new("Frame"),
+	UICorner = Instance.new("UICorner"),
+	Panel = Instance.new("Frame"),
+	UICorner_1 = Instance.new("UICorner"),
+	TextLabel = Instance.new("TextLabel"),
+	Buttons = Instance.new("Frame"),
+	ScrollingFrame = Instance.new("ScrollingFrame"),
+	Brookhaven = Instance.new("TextButton"),
+	UICorner_2 = Instance.new("UICorner"),
+	Script = Instance.new("Script"),
+	Infinite_Yield = Instance.new("TextButton"),
+	UICorner_3 = Instance.new("UICorner"),
+	Script_1 = Instance.new("Script"),
+	Eat_Blobs_Simulator = Instance.new("TextButton"),
+	UICorner_4 = Instance.new("UICorner"),
+	Script_2 = Instance.new("Script"),
+	The_Strongest_Battlegrounds = Instance.new("TextButton"),
+	UICorner_5 = Instance.new("UICorner"),
+	Script_3 = Instance.new("Script"),
+	UniversalAimESP = Instance.new("TextButton"),
+	UICorner_6 = Instance.new("UICorner"),
+	Script_4 = Instance.new("Script"),
+	Welcome_to_Bloxburg = Instance.new("TextButton"),
+	UICorner_7 = Instance.new("UICorner"),
+	Script_5 = Instance.new("Script"),
+	a_dusty_trip = Instance.new("TextButton"),
+	UICorner_8 = Instance.new("UICorner"),
+	Script_6 = Instance.new("Script"),
+	Evade = Instance.new("TextButton"),
+	UICorner_9 = Instance.new("UICorner"),
+	Script_7 = Instance.new("Script"),
+	UIGridLayout = Instance.new("UIGridLayout"),
+	Blox_Fruits = Instance.new("TextButton"),
+	UICorner_10 = Instance.new("UICorner"),
+	Script_8 = Instance.new("Script"),
+	Big_paintball_2 = Instance.new("TextButton"),
+	UICorner_11 = Instance.new("UICorner"),
+	Script_9 = Instance.new("Script"),
+	KAT = Instance.new("TextButton"),
+	UICorner_12 = Instance.new("UICorner"),
+	Script_10 = Instance.new("Script"),
+	Counter_Blox_ = Instance.new("TextButton"),
+	UICorner_13 = Instance.new("UICorner"),
+	Script_11 = Instance.new("Script"),
+	Phantom_Forces_PC = Instance.new("TextButton"),
+	UICorner_14 = Instance.new("UICorner"),
+	Script_12 = Instance.new("Script"),
+	Anomic = Instance.new("TextButton"),
+	UICorner_15 = Instance.new("UICorner"),
+	Script_13 = Instance.new("Script"),
+	Lumber_Tycoon = Instance.new("TextButton"),
+	UICorner_16 = Instance.new("UICorner"),
+	Script_14 = Instance.new("Script"),
+	PLS_BUY_ME = Instance.new("TextButton"),
+	UICorner_17 = Instance.new("UICorner"),
+	Script_15 = Instance.new("Script"),
+	Donate_Spinner = Instance.new("TextButton"),
+	UICorner_18 = Instance.new("UICorner"),
+	Script_16 = Instance.new("Script"),
+	DOORS = Instance.new("TextButton"),
+	UICorner_19 = Instance.new("UICorner"),
+	Script_17 = Instance.new("Script"),
+	Natural_Disaster_Survival = Instance.new("TextButton"),
+	UICorner_20 = Instance.new("UICorner"),
+	Script_18 = Instance.new("Script"),
+	Blade_Ball = Instance.new("TextButton"),
+	UICorner_21 = Instance.new("UICorner"),
+	Script_19 = Instance.new("Script"),
+	Pet_Simulator_99 = Instance.new("TextButton"),
+	UICorner_22 = Instance.new("UICorner"),
+	Script_20 = Instance.new("Script"),
+	Starving_Artist_auto_draw_ = Instance.new("TextButton"),
+	UICorner_23 = Instance.new("UICorner"),
+	Script_21 = Instance.new("Script"),
+	Print_Test = Instance.new("TextButton"),
+	UICorner_24 = Instance.new("UICorner"),
+	Script_22 = Instance.new("Script"),
+	Dex_Explorer = Instance.new("TextButton"),
+	UICorner_25 = Instance.new("UICorner"),
+	Script_23 = Instance.new("Script"),
+	Obby_but_you_re_on_a_bike = Instance.new("TextButton"),
+	UICorner_26 = Instance.new("UICorner"),
+	Script_24 = Instance.new("Script"),
+	Answer_or_Die = Instance.new("TextButton"),
+	UICorner_27 = Instance.new("UICorner"),
+	Script_25 = Instance.new("Script"),
+	Tower_Of_Hell = Instance.new("TextButton"),
+	UICorner_28 = Instance.new("UICorner"),
+	Script_26 = Instance.new("Script"),
+	The_Obby_Elevator = Instance.new("TextButton"),
+	UICorner_29 = Instance.new("UICorner"),
+	Script_27 = Instance.new("Script"),
+	Search = Instance.new("TextBox"),
+	UICorner_30 = Instance.new("UICorner"),
+	searchScript = Instance.new("LocalScript"),
+	Dragable = Instance.new("LocalScript"),
+	Settings = Instance.new("ImageButton"),
+	LocalScript = Instance.new("LocalScript"),
+	UICorner_31 = Instance.new("UICorner"),
+	Open_Close = Instance.new("TextButton"),
+	UICorner_32 = Instance.new("UICorner"),
+	LocalScript_1 = Instance.new("LocalScript"),
+	LocalScript_2 = Instance.new("LocalScript"),
+	Frame2 = Instance.new("Frame"),
+	Hub = Instance.new("TextButton"),
+	LocalScript_3 = Instance.new("LocalScript"),
+	UICorner_33 = Instance.new("UICorner"),
+	UICorner_34 = Instance.new("UICorner"),
+	Panel_1 = Instance.new("Frame"),
+	UICorner_35 = Instance.new("UICorner"),
+	TextLabel_1 = Instance.new("TextLabel"),
+	Dragable_1 = Instance.new("LocalScript"),
+	Tabs = Instance.new("Frame"),
+	UICorner_36 = Instance.new("UICorner"),
+	Colors = Instance.new("TextButton"),
+	LocalScript_4 = Instance.new("LocalScript"),
+	UICorner_37 = Instance.new("UICorner"),
+	Backgrounds = Instance.new("TextButton"),
+	LocalScript_5 = Instance.new("LocalScript"),
+	UICorner_38 = Instance.new("UICorner"),
+	ColorFrame = Instance.new("Frame"),
+	Blue = Instance.new("ImageButton"),
+	LocalScript_6 = Instance.new("LocalScript"),
+	UICorner_39 = Instance.new("UICorner"),
+	White = Instance.new("ImageButton"),
+	LocalScript_7 = Instance.new("LocalScript"),
+	UICorner_40 = Instance.new("UICorner"),
+	Black = Instance.new("ImageButton"),
+	UICorner_41 = Instance.new("UICorner"),
+	LocalScript_8 = Instance.new("LocalScript"),
+	TextLabel_2 = Instance.new("TextLabel"),
+	Green = Instance.new("ImageButton"),
+	LocalScript_9 = Instance.new("LocalScript"),
+	UICorner_42 = Instance.new("UICorner"),
+	Backgrounds_1 = Instance.new("Frame"),
+	Floppa = Instance.new("ImageButton"),
+	UICorner_43 = Instance.new("UICorner"),
+	LocalScript_10 = Instance.new("LocalScript"),
+	Nothing = Instance.new("ImageButton"),
+	UICorner_44 = Instance.new("UICorner"),
+	LocalScript_11 = Instance.new("LocalScript"),
+	TextLabel_3 = Instance.new("TextLabel"),
+	Amongusmanface = Instance.new("ImageButton"),
+	UICorner_45 = Instance.new("UICorner"),
+	LocalScript_12 = Instance.new("LocalScript"),
+	HotDog = Instance.new("ImageButton"),
+	UICorner_46 = Instance.new("UICorner"),
+	LocalScript_13 = Instance.new("LocalScript"),
+	BeluMom = Instance.new("ImageButton"),
+	UICorner_47 = Instance.new("UICorner"),
+	LocalScript_14 = Instance.new("LocalScript")
+}
+
+tbl.ScriptHubPaid.IgnoreGuiInset = true
+tbl.ScriptHubPaid.Name = "ScriptHubPaid"
+tbl.ScriptHubPaid.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
+tbl.ScriptHubPaid.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+tbl.ScriptHubPaid.Parent = game:GetService("StarterGui")
+
+tbl.Frame.BorderSizePixel = 0
+tbl.Frame.BackgroundColor3 = Color3.fromRGB(53, 53, 53)
+tbl.Frame.Size = UDim2.new(0.416107, 0, 0.460674, 0)
+tbl.Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Frame.Position = UDim2.new(0.291724, 0, 0.229936, 0)
+tbl.Frame.Parent = tbl.ScriptHubPaid
+
+tbl.UICorner.Parent = tbl.Frame
+
+tbl.Panel.BorderSizePixel = 0
+tbl.Panel.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+tbl.Panel.Size = UDim2.new(1, 0, 0.0820399, 0)
+tbl.Panel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Panel.Name = "Panel"
+tbl.Panel.Parent = tbl.Frame
+
+tbl.UICorner_1.Parent = tbl.Panel
+
+tbl.TextLabel.TextWrapped = true
+tbl.TextLabel.TextStrokeTransparency = 0
+tbl.TextLabel.BorderSizePixel = 0
+tbl.TextLabel.TextScaled = true
+tbl.TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.TextLabel.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.TextLabel.Position = UDim2.new(0.0103687, 0, -0.189189, 0)
+tbl.TextLabel.TextSize = 14
+tbl.TextLabel.Size = UDim2.new(0.230415, 0, 1.35135, 0)
+tbl.TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.TextLabel.Text = "Medium Scripthub"
+tbl.TextLabel.BackgroundTransparency = 1
+tbl.TextLabel.Parent = tbl.Panel
+
+tbl.Buttons.BorderSizePixel = 0
+tbl.Buttons.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Buttons.Size = UDim2.new(1, 0, 0.91796, 0)
+tbl.Buttons.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Buttons.BackgroundTransparency = 1
+tbl.Buttons.Name = "Buttons"
+tbl.Buttons.Position = UDim2.new(0, 0, 0.0820399, 0)
+tbl.Buttons.Parent = tbl.Frame
+
+tbl.ScrollingFrame.BorderSizePixel = 0
+tbl.ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+tbl.ScrollingFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.ScrollingFrame.BackgroundTransparency = 1
+tbl.ScrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+tbl.ScrollingFrame.Size = UDim2.new(0.979263, 0, 0.985507, 0)
+tbl.ScrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0)
+tbl.ScrollingFrame.Active = true
+tbl.ScrollingFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.ScrollingFrame.Position = UDim2.new(0.0103687, 0, 0.0144928, 0)
+tbl.ScrollingFrame.Parent = tbl.Buttons
+
+tbl.Brookhaven.TextWrapped = true
+tbl.Brookhaven.TextStrokeTransparency = 0
+tbl.Brookhaven.BorderSizePixel = 0
+tbl.Brookhaven.TextScaled = true
+tbl.Brookhaven.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Brookhaven.Position = UDim2.new(0.245663, 0, 0.32598, 0)
+tbl.Brookhaven.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Brookhaven.Name = "Brookhaven"
+tbl.Brookhaven.TextSize = 14
+tbl.Brookhaven.Size = UDim2.new(0, 200, 0, 50)
+tbl.Brookhaven.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Brookhaven.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Brookhaven.Text = "Brookhaven "
+tbl.Brookhaven.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_2.Parent = tbl.Brookhaven
+
+tbl.Script.Parent = tbl.Brookhaven
+
+tbl.Infinite_Yield.TextWrapped = true
+tbl.Infinite_Yield.TextStrokeTransparency = 0
+tbl.Infinite_Yield.BorderSizePixel = 0
+tbl.Infinite_Yield.TextScaled = true
+tbl.Infinite_Yield.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Infinite_Yield.Position = UDim2.new(0.245882, 0, -0.00186277, 0)
+tbl.Infinite_Yield.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Infinite_Yield.Name = "Infinite Yield"
+tbl.Infinite_Yield.TextSize = 14
+tbl.Infinite_Yield.Size = UDim2.new(0, 200, 0, 50)
+tbl.Infinite_Yield.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Infinite_Yield.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Infinite_Yield.Text = "Infinite Yield"
+tbl.Infinite_Yield.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_3.Parent = tbl.Infinite_Yield
+
+tbl.Script_1.Parent = tbl.Infinite_Yield
+
+tbl.Eat_Blobs_Simulator.TextWrapped = true
+tbl.Eat_Blobs_Simulator.TextStrokeTransparency = 0
+tbl.Eat_Blobs_Simulator.BorderSizePixel = 0
+tbl.Eat_Blobs_Simulator.TextScaled = true
+tbl.Eat_Blobs_Simulator.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Eat_Blobs_Simulator.Position = UDim2.new(0.660879, 0, 0.600082, 0)
+tbl.Eat_Blobs_Simulator.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Eat_Blobs_Simulator.Name = "Eat Blobs Simulator"
+tbl.Eat_Blobs_Simulator.TextSize = 14
+tbl.Eat_Blobs_Simulator.Size = UDim2.new(0, 200, 0, 50)
+tbl.Eat_Blobs_Simulator.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Eat_Blobs_Simulator.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Eat_Blobs_Simulator.Text = "Eat Blobs Simulator"
+tbl.Eat_Blobs_Simulator.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_4.Parent = tbl.Eat_Blobs_Simulator
+
+tbl.Script_2.Parent = tbl.Eat_Blobs_Simulator
+
+tbl.The_Strongest_Battlegrounds.TextWrapped = true
+tbl.The_Strongest_Battlegrounds.TextStrokeTransparency = 0
+tbl.The_Strongest_Battlegrounds.BorderSizePixel = 0
+tbl.The_Strongest_Battlegrounds.TextScaled = true
+tbl.The_Strongest_Battlegrounds.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.The_Strongest_Battlegrounds.Position = UDim2.new(-0.000219583, 0, 0.497549, 0)
+tbl.The_Strongest_Battlegrounds.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.The_Strongest_Battlegrounds.Name = "The Strongest Battlegrounds"
+tbl.The_Strongest_Battlegrounds.TextSize = 14
+tbl.The_Strongest_Battlegrounds.Size = UDim2.new(0, 200, 0, 50)
+tbl.The_Strongest_Battlegrounds.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.The_Strongest_Battlegrounds.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.The_Strongest_Battlegrounds.Text = "The Strongest Battlegrounds"
+tbl.The_Strongest_Battlegrounds.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_5.Parent = tbl.The_Strongest_Battlegrounds
+
+tbl.Script_3.Parent = tbl.The_Strongest_Battlegrounds
+
+tbl.UniversalAimESP.TextWrapped = true
+tbl.UniversalAimESP.TextStrokeTransparency = 0
+tbl.UniversalAimESP.BorderSizePixel = 0
+tbl.UniversalAimESP.TextScaled = true
+tbl.UniversalAimESP.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.UniversalAimESP.Position = UDim2.new(-0.000219583, 0, 0.32598, 0)
+tbl.UniversalAimESP.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.UniversalAimESP.Name = "UniversalAimESP"
+tbl.UniversalAimESP.TextSize = 14
+tbl.UniversalAimESP.Size = UDim2.new(0, 200, 0, 50)
+tbl.UniversalAimESP.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.UniversalAimESP.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.UniversalAimESP.Text = "Universal Aimbot & ESP"
+tbl.UniversalAimESP.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_6.Parent = tbl.UniversalAimESP
+
+tbl.Script_4.Parent = tbl.UniversalAimESP
+
+tbl.Welcome_to_Bloxburg.TextWrapped = true
+tbl.Welcome_to_Bloxburg.TextStrokeTransparency = 0
+tbl.Welcome_to_Bloxburg.BorderSizePixel = 0
+tbl.Welcome_to_Bloxburg.TextScaled = true
+tbl.Welcome_to_Bloxburg.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Welcome_to_Bloxburg.Position = UDim2.new(0.491765, 0, -0.000882467, 0)
+tbl.Welcome_to_Bloxburg.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Welcome_to_Bloxburg.Name = "Welcome to Bloxburg"
+tbl.Welcome_to_Bloxburg.TextSize = 14
+tbl.Welcome_to_Bloxburg.Size = UDim2.new(0, 200, 0, 50)
+tbl.Welcome_to_Bloxburg.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Welcome_to_Bloxburg.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Welcome_to_Bloxburg.Text = "Welcome to Bloxburg"
+tbl.Welcome_to_Bloxburg.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_7.Parent = tbl.Welcome_to_Bloxburg
+
+tbl.Script_5.Parent = tbl.Welcome_to_Bloxburg
+
+tbl.a_dusty_trip.TextWrapped = true
+tbl.a_dusty_trip.TextStrokeTransparency = 0
+tbl.a_dusty_trip.BorderSizePixel = 0
+tbl.a_dusty_trip.TextScaled = true
+tbl.a_dusty_trip.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.a_dusty_trip.Position = UDim2.new(-0.000219583, 0, 0.159314, 0)
+tbl.a_dusty_trip.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.a_dusty_trip.Name = "a dusty trip"
+tbl.a_dusty_trip.TextSize = 14
+tbl.a_dusty_trip.Size = UDim2.new(0, 200, 0, 50)
+tbl.a_dusty_trip.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.a_dusty_trip.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.a_dusty_trip.Text = "A dusty trip"
+tbl.a_dusty_trip.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_8.Parent = tbl.a_dusty_trip
+
+tbl.Script_6.Parent = tbl.a_dusty_trip
+
+tbl.Evade.TextWrapped = true
+tbl.Evade.TextStrokeTransparency = 0
+tbl.Evade.BorderSizePixel = 0
+tbl.Evade.TextScaled = true
+tbl.Evade.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Evade.Position = UDim2.new(0.245882, 0, 0.49647, 0)
+tbl.Evade.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Evade.Name = "Evade"
+tbl.Evade.TextSize = 14
+tbl.Evade.Size = UDim2.new(0, 200, 0, 50)
+tbl.Evade.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Evade.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Evade.Text = "Evade"
+tbl.Evade.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_9.Parent = tbl.Evade
+
+tbl.Script_7.Parent = tbl.Evade
+
+tbl.UIGridLayout.CellPadding = UDim2.new(0, 5, 0, 6)
+tbl.UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+tbl.UIGridLayout.CellSize = UDim2.new(0, 200, 0, 50)
+tbl.UIGridLayout.Parent = tbl.ScrollingFrame
+
+tbl.Blox_Fruits.TextWrapped = true
+tbl.Blox_Fruits.TextStrokeTransparency = 0
+tbl.Blox_Fruits.BorderSizePixel = 0
+tbl.Blox_Fruits.TextScaled = true
+tbl.Blox_Fruits.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Blox_Fruits.Position = UDim2.new(-0.000219583, 0, 0, 0)
+tbl.Blox_Fruits.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Blox_Fruits.Name = "Blox Fruits"
+tbl.Blox_Fruits.TextSize = 14
+tbl.Blox_Fruits.Size = UDim2.new(0, 200, 0, 50)
+tbl.Blox_Fruits.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Blox_Fruits.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Blox_Fruits.Text = "Blox Fruits"
+tbl.Blox_Fruits.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_10.Parent = tbl.Blox_Fruits
+
+tbl.Script_8.Parent = tbl.Blox_Fruits
+
+tbl.Big_paintball_2.TextWrapped = true
+tbl.Big_paintball_2.TextStrokeTransparency = 0
+tbl.Big_paintball_2.BorderSizePixel = 0
+tbl.Big_paintball_2.TextScaled = true
+tbl.Big_paintball_2.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Big_paintball_2.Position = UDim2.new(-0.000219583, 0, 0, 0)
+tbl.Big_paintball_2.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Big_paintball_2.Name = "Big paintball 2"
+tbl.Big_paintball_2.TextSize = 14
+tbl.Big_paintball_2.Size = UDim2.new(0, 200, 0, 50)
+tbl.Big_paintball_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Big_paintball_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Big_paintball_2.Text = "BIG Paintball 2!"
+tbl.Big_paintball_2.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_11.Parent = tbl.Big_paintball_2
+
+tbl.Script_9.Parent = tbl.Big_paintball_2
+
+tbl.KAT.TextWrapped = true
+tbl.KAT.TextStrokeTransparency = 0
+tbl.KAT.BorderSizePixel = 0
+tbl.KAT.TextScaled = true
+tbl.KAT.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.KAT.Position = UDim2.new(-0.000219583, 0, 0, 0)
+tbl.KAT.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.KAT.Name = "KAT"
+tbl.KAT.TextSize = 14
+tbl.KAT.Size = UDim2.new(0, 200, 0, 50)
+tbl.KAT.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.KAT.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.KAT.Text = "KAT"
+tbl.KAT.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_12.Parent = tbl.KAT
+
+tbl.Script_10.Parent = tbl.KAT
+
+tbl.Counter_Blox_.TextWrapped = true
+tbl.Counter_Blox_.TextStrokeTransparency = 0
+tbl.Counter_Blox_.BorderSizePixel = 0
+tbl.Counter_Blox_.TextScaled = true
+tbl.Counter_Blox_.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Counter_Blox_.Position = UDim2.new(0.245663, 0, 0.159314, 0)
+tbl.Counter_Blox_.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Counter_Blox_.Name = "Counter Blox"
+tbl.Counter_Blox_.TextSize = 14
+tbl.Counter_Blox_.Size = UDim2.new(0, 200, 0, 50)
+tbl.Counter_Blox_.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Counter_Blox_.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Counter_Blox_.Text = "Counter Blox"
+tbl.Counter_Blox_.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_13.Parent = tbl.Counter_Blox_
+
+tbl.Script_11.Parent = tbl.Counter_Blox_
+
+tbl.Phantom_Forces_PC.TextWrapped = true
+tbl.Phantom_Forces_PC.TextStrokeTransparency = 0
+tbl.Phantom_Forces_PC.BorderSizePixel = 0
+tbl.Phantom_Forces_PC.TextScaled = true
+tbl.Phantom_Forces_PC.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Phantom_Forces_PC.Position = UDim2.new(0.660879, 0, 0.600082, 0)
+tbl.Phantom_Forces_PC.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Phantom_Forces_PC.Name = "Phantom Forces PC"
+tbl.Phantom_Forces_PC.TextSize = 14
+tbl.Phantom_Forces_PC.Size = UDim2.new(0, 200, 0, 50)
+tbl.Phantom_Forces_PC.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Phantom_Forces_PC.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Phantom_Forces_PC.Text = "Phantom Forces PC"
+tbl.Phantom_Forces_PC.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_14.Parent = tbl.Phantom_Forces_PC
+
+tbl.Script_12.Parent = tbl.Phantom_Forces_PC
+
+tbl.Anomic.TextWrapped = true
+tbl.Anomic.TextStrokeTransparency = 0
+tbl.Anomic.BorderSizePixel = 0
+tbl.Anomic.TextScaled = true
+tbl.Anomic.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Anomic.Position = UDim2.new(0.660879, 0, 0.600082, 0)
+tbl.Anomic.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Anomic.Name = "Anomic"
+tbl.Anomic.TextSize = 14
+tbl.Anomic.Size = UDim2.new(0, 200, 0, 50)
+tbl.Anomic.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Anomic.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Anomic.Text = "Anomic"
+tbl.Anomic.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_15.Parent = tbl.Anomic
+
+tbl.Script_13.Parent = tbl.Anomic
+
+tbl.Lumber_Tycoon.TextWrapped = true
+tbl.Lumber_Tycoon.TextStrokeTransparency = 0
+tbl.Lumber_Tycoon.BorderSizePixel = 0
+tbl.Lumber_Tycoon.TextScaled = true
+tbl.Lumber_Tycoon.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Lumber_Tycoon.Position = UDim2.new(-0.000219583, 0, 0.159314, 0)
+tbl.Lumber_Tycoon.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Lumber_Tycoon.Name = "Lumber Tycoon"
+tbl.Lumber_Tycoon.TextSize = 14
+tbl.Lumber_Tycoon.Size = UDim2.new(0, 200, 0, 50)
+tbl.Lumber_Tycoon.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Lumber_Tycoon.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Lumber_Tycoon.Text = "Lumber Tycoon"
+tbl.Lumber_Tycoon.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_16.Parent = tbl.Lumber_Tycoon
+
+tbl.Script_14.Parent = tbl.Lumber_Tycoon
+
+tbl.PLS_BUY_ME.TextWrapped = true
+tbl.PLS_BUY_ME.TextStrokeTransparency = 0
+tbl.PLS_BUY_ME.BorderSizePixel = 0
+tbl.PLS_BUY_ME.TextScaled = true
+tbl.PLS_BUY_ME.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.PLS_BUY_ME.Position = UDim2.new(0.660879, 0, 0.600082, 0)
+tbl.PLS_BUY_ME.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.PLS_BUY_ME.Name = "PLS BUY ME"
+tbl.PLS_BUY_ME.TextSize = 14
+tbl.PLS_BUY_ME.Size = UDim2.new(0, 200, 0, 50)
+tbl.PLS_BUY_ME.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.PLS_BUY_ME.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.PLS_BUY_ME.Text = "PLS BUY ME"
+tbl.PLS_BUY_ME.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_17.Parent = tbl.PLS_BUY_ME
+
+tbl.Script_15.Parent = tbl.PLS_BUY_ME
+
+tbl.Donate_Spinner.TextWrapped = true
+tbl.Donate_Spinner.TextStrokeTransparency = 0
+tbl.Donate_Spinner.BorderSizePixel = 0
+tbl.Donate_Spinner.TextScaled = true
+tbl.Donate_Spinner.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Donate_Spinner.Position = UDim2.new(0.660879, 0, 0.600082, 0)
+tbl.Donate_Spinner.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Donate_Spinner.Name = "Donate Spinner"
+tbl.Donate_Spinner.TextSize = 14
+tbl.Donate_Spinner.Size = UDim2.new(0, 200, 0, 50)
+tbl.Donate_Spinner.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Donate_Spinner.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Donate_Spinner.Text = "Donate Spinner"
+tbl.Donate_Spinner.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_18.Parent = tbl.Donate_Spinner
+
+tbl.Script_16.Parent = tbl.Donate_Spinner
+
+tbl.DOORS.TextWrapped = true
+tbl.DOORS.TextStrokeTransparency = 0
+tbl.DOORS.BorderSizePixel = 0
+tbl.DOORS.TextScaled = true
+tbl.DOORS.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.DOORS.Position = UDim2.new(0.660879, 0, 0.600082, 0)
+tbl.DOORS.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.DOORS.Name = "DOORS"
+tbl.DOORS.TextSize = 14
+tbl.DOORS.Size = UDim2.new(0, 200, 0, 50)
+tbl.DOORS.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.DOORS.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.DOORS.Text = "DOORS"
+tbl.DOORS.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_19.Parent = tbl.DOORS
+
+tbl.Script_17.Parent = tbl.DOORS
+
+tbl.Natural_Disaster_Survival.TextWrapped = true
+tbl.Natural_Disaster_Survival.TextStrokeTransparency = 0
+tbl.Natural_Disaster_Survival.BorderSizePixel = 0
+tbl.Natural_Disaster_Survival.TextScaled = true
+tbl.Natural_Disaster_Survival.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Natural_Disaster_Survival.Position = UDim2.new(0.660879, 0, 0.600082, 0)
+tbl.Natural_Disaster_Survival.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Natural_Disaster_Survival.Name = "Natural Disaster Survival"
+tbl.Natural_Disaster_Survival.TextSize = 14
+tbl.Natural_Disaster_Survival.Size = UDim2.new(0, 200, 0, 50)
+tbl.Natural_Disaster_Survival.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Natural_Disaster_Survival.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Natural_Disaster_Survival.Text = "Natural Disaster Survival"
+tbl.Natural_Disaster_Survival.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_20.Parent = tbl.Natural_Disaster_Survival
+
+tbl.Script_18.Parent = tbl.Natural_Disaster_Survival
+
+tbl.Blade_Ball.TextWrapped = true
+tbl.Blade_Ball.TextStrokeTransparency = 0
+tbl.Blade_Ball.BorderSizePixel = 0
+tbl.Blade_Ball.TextScaled = true
+tbl.Blade_Ball.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Blade_Ball.Position = UDim2.new(0.660879, 0, 0.600082, 0)
+tbl.Blade_Ball.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Blade_Ball.Name = "Blade Ball"
+tbl.Blade_Ball.TextSize = 14
+tbl.Blade_Ball.Size = UDim2.new(0, 200, 0, 50)
+tbl.Blade_Ball.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Blade_Ball.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Blade_Ball.Text = "Blade Ball"
+tbl.Blade_Ball.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_21.Parent = tbl.Blade_Ball
+
+tbl.Script_19.Parent = tbl.Blade_Ball
+
+tbl.Pet_Simulator_99.TextWrapped = true
+tbl.Pet_Simulator_99.TextStrokeTransparency = 0
+tbl.Pet_Simulator_99.BorderSizePixel = 0
+tbl.Pet_Simulator_99.TextScaled = true
+tbl.Pet_Simulator_99.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Pet_Simulator_99.Position = UDim2.new(0.660879, 0, 0.600082, 0)
+tbl.Pet_Simulator_99.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Pet_Simulator_99.Name = "Pet Simulator 99"
+tbl.Pet_Simulator_99.TextSize = 14
+tbl.Pet_Simulator_99.Size = UDim2.new(0, 200, 0, 50)
+tbl.Pet_Simulator_99.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Pet_Simulator_99.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Pet_Simulator_99.Text = "Pet Simulator 99"
+tbl.Pet_Simulator_99.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_22.Parent = tbl.Pet_Simulator_99
+
+tbl.Script_20.Parent = tbl.Pet_Simulator_99
+
+tbl.Starving_Artist_auto_draw_.TextWrapped = true
+tbl.Starving_Artist_auto_draw_.TextStrokeTransparency = 0
+tbl.Starving_Artist_auto_draw_.BorderSizePixel = 0
+tbl.Starving_Artist_auto_draw_.TextScaled = true
+tbl.Starving_Artist_auto_draw_.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Starving_Artist_auto_draw_.Position = UDim2.new(-0.000219583, 0, 0.159314, 0)
+tbl.Starving_Artist_auto_draw_.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Starving_Artist_auto_draw_.Name = "Starving Artist (auto draw)"
+tbl.Starving_Artist_auto_draw_.TextSize = 14
+tbl.Starving_Artist_auto_draw_.Size = UDim2.new(0, 200, 0, 50)
+tbl.Starving_Artist_auto_draw_.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Starving_Artist_auto_draw_.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Starving_Artist_auto_draw_.Text = "Starving Artist (auto draw)"
+tbl.Starving_Artist_auto_draw_.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_23.Parent = tbl.Starving_Artist_auto_draw_
+
+tbl.Script_21.Parent = tbl.Starving_Artist_auto_draw_
+
+tbl.Print_Test.TextWrapped = true
+tbl.Print_Test.TextStrokeTransparency = 0
+tbl.Print_Test.BorderSizePixel = 0
+tbl.Print_Test.TextScaled = true
+tbl.Print_Test.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Print_Test.Position = UDim2.new(0.660879, 0, 0.600082, 0)
+tbl.Print_Test.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Print_Test.Name = "Print Test"
+tbl.Print_Test.TextSize = 14
+tbl.Print_Test.Size = UDim2.new(0, 200, 0, 50)
+tbl.Print_Test.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Print_Test.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Print_Test.Text = "Print Test"
+tbl.Print_Test.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_24.Parent = tbl.Print_Test
+
+tbl.Script_22.Parent = tbl.Print_Test
+
+tbl.Dex_Explorer.TextWrapped = true
+tbl.Dex_Explorer.TextStrokeTransparency = 0
+tbl.Dex_Explorer.BorderSizePixel = 0
+tbl.Dex_Explorer.TextScaled = true
+tbl.Dex_Explorer.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Dex_Explorer.Position = UDim2.new(-0.000219583, 0, 0.159314, 0)
+tbl.Dex_Explorer.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Dex_Explorer.Name = "Dex Explorer"
+tbl.Dex_Explorer.TextSize = 14
+tbl.Dex_Explorer.Size = UDim2.new(0, 200, 0, 50)
+tbl.Dex_Explorer.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Dex_Explorer.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Dex_Explorer.Text = "Dex Explorer"
+tbl.Dex_Explorer.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_25.Parent = tbl.Dex_Explorer
+
+tbl.Script_23.Parent = tbl.Dex_Explorer
+
+tbl.Obby_but_you_re_on_a_bike.TextWrapped = true
+tbl.Obby_but_you_re_on_a_bike.TextStrokeTransparency = 0
+tbl.Obby_but_you_re_on_a_bike.BorderSizePixel = 0
+tbl.Obby_but_you_re_on_a_bike.TextScaled = true
+tbl.Obby_but_you_re_on_a_bike.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Obby_but_you_re_on_a_bike.Position = UDim2.new(-0.000219583, 0, 0.159314, 0)
+tbl.Obby_but_you_re_on_a_bike.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Obby_but_you_re_on_a_bike.Name = "Obby but you're on a bike"
+tbl.Obby_but_you_re_on_a_bike.TextSize = 14
+tbl.Obby_but_you_re_on_a_bike.Size = UDim2.new(0, 200, 0, 50)
+tbl.Obby_but_you_re_on_a_bike.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Obby_but_you_re_on_a_bike.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Obby_but_you_re_on_a_bike.Text = "Obby but you're on a bike"
+tbl.Obby_but_you_re_on_a_bike.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_26.Parent = tbl.Obby_but_you_re_on_a_bike
+
+tbl.Script_24.Parent = tbl.Obby_but_you_re_on_a_bike
+
+tbl.Answer_or_Die.TextWrapped = true
+tbl.Answer_or_Die.TextStrokeTransparency = 0
+tbl.Answer_or_Die.BorderSizePixel = 0
+tbl.Answer_or_Die.TextScaled = true
+tbl.Answer_or_Die.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Answer_or_Die.Position = UDim2.new(0.660879, 0, 0.600082, 0)
+tbl.Answer_or_Die.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Answer_or_Die.Name = "Answer or Die"
+tbl.Answer_or_Die.TextSize = 14
+tbl.Answer_or_Die.Size = UDim2.new(0, 200, 0, 50)
+tbl.Answer_or_Die.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Answer_or_Die.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Answer_or_Die.Text = "Answer or Die"
+tbl.Answer_or_Die.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_27.Parent = tbl.Answer_or_Die
+
+tbl.Script_25.Parent = tbl.Answer_or_Die
+
+tbl.Tower_Of_Hell.TextWrapped = true
+tbl.Tower_Of_Hell.TextStrokeTransparency = 0
+tbl.Tower_Of_Hell.BorderSizePixel = 0
+tbl.Tower_Of_Hell.TextScaled = true
+tbl.Tower_Of_Hell.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.Tower_Of_Hell.Position = UDim2.new(-0.000219583, 0, 0.159314, 0)
+tbl.Tower_Of_Hell.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Tower_Of_Hell.Name = "Tower Of Hell"
+tbl.Tower_Of_Hell.TextSize = 14
+tbl.Tower_Of_Hell.Size = UDim2.new(0, 200, 0, 50)
+tbl.Tower_Of_Hell.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Tower_Of_Hell.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Tower_Of_Hell.Text = "Tower Of Hell"
+tbl.Tower_Of_Hell.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_28.Parent = tbl.Tower_Of_Hell
+
+tbl.Script_26.Parent = tbl.Tower_Of_Hell
+
+tbl.The_Obby_Elevator.TextWrapped = true
+tbl.The_Obby_Elevator.TextStrokeTransparency = 0
+tbl.The_Obby_Elevator.BorderSizePixel = 0
+tbl.The_Obby_Elevator.TextScaled = true
+tbl.The_Obby_Elevator.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+tbl.The_Obby_Elevator.Position = UDim2.new(-0.000219583, 0, 0.159314, 0)
+tbl.The_Obby_Elevator.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.The_Obby_Elevator.Name = "The Obby Elevator"
+tbl.The_Obby_Elevator.TextSize = 14
+tbl.The_Obby_Elevator.Size = UDim2.new(0, 200, 0, 50)
+tbl.The_Obby_Elevator.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.The_Obby_Elevator.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.The_Obby_Elevator.Text = "The Obby Elevator"
+tbl.The_Obby_Elevator.Parent = tbl.ScrollingFrame
+
+tbl.UICorner_29.Parent = tbl.The_Obby_Elevator
+
+tbl.Script_27.Parent = tbl.The_Obby_Elevator
+
+tbl.Search.TextWrapped = true
+tbl.Search.TextStrokeTransparency = 0
+tbl.Search.BorderSizePixel = 0
+tbl.Search.PlaceholderColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Search.Position = UDim2.new(0.779954, 0, -0.0869565, 0)
+tbl.Search.TextScaled = true
+tbl.Search.BackgroundColor3 = Color3.fromRGB(99, 99, 99)
+tbl.Search.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Search.PlaceholderText = "Search"
+tbl.Search.TextSize = 14
+tbl.Search.Size = UDim2.new(0.220046, 0, 0.0821256, 0)
+tbl.Search.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Search.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Search.Text = ""
+tbl.Search.CursorPosition = -1
+tbl.Search.Name = "Search"
+tbl.Search.Parent = tbl.Buttons
+
+tbl.UICorner_30.Parent = tbl.Search
+
+tbl.searchScript.Name = "searchScript"
+tbl.searchScript.Parent = tbl.Buttons
+
+tbl.Dragable.Name = "Dragable"
+tbl.Dragable.Parent = tbl.Frame
+
+tbl.Settings.BorderSizePixel = 0
+tbl.Settings.ScaleType = Enum.ScaleType.Fit
+tbl.Settings.Position = UDim2.new(0.73199, 0, 0.00443459, 0)
+tbl.Settings.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Settings.Name = "Settings"
+tbl.Settings.Image = "rbxassetid://11953925580"
+tbl.Settings.Size = UDim2.new(0.0383366, 0, 0.0709534, 0)
+tbl.Settings.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Settings.BackgroundTransparency = 1
+tbl.Settings.Parent = tbl.Frame
+
+tbl.LocalScript.Name = "LocalScript"
+tbl.LocalScript.Parent = tbl.Settings
+
+tbl.UICorner_31.Parent = tbl.Settings
+
+tbl.Open_Close.TextWrapped = true
+tbl.Open_Close.TextStrokeTransparency = 0
+tbl.Open_Close.BorderSizePixel = 0
+tbl.Open_Close.TextScaled = true
+tbl.Open_Close.BackgroundColor3 = Color3.fromRGB(49, 49, 49)
+tbl.Open_Close.Position = UDim2.new(0.0109529, 0, 0.473953, 0)
+tbl.Open_Close.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Open_Close.Name = "Open/Close"
+tbl.Open_Close.TextSize = 14
+tbl.Open_Close.Size = UDim2.new(0.0958773, 0, 0.0510725, 0)
+tbl.Open_Close.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Open_Close.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Open_Close.Text = "Open/Close"
+tbl.Open_Close.Parent = tbl.ScriptHubPaid
+
+tbl.UICorner_32.Parent = tbl.Open_Close
+
+tbl.LocalScript_1.Name = "LocalScript"
+tbl.LocalScript_1.Parent = tbl.Open_Close
+
+tbl.LocalScript_2.Name = "LocalScript"
+tbl.LocalScript_2.Parent = tbl.ScriptHubPaid
+
+tbl.Frame2.BorderSizePixel = 0
+tbl.Frame2.BackgroundColor3 = Color3.fromRGB(53, 53, 53)
+tbl.Frame2.Size = UDim2.new(0.338323, 0, 0.417515, 0)
+tbl.Frame2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Frame2.Visible = false
+tbl.Frame2.Name = "Frame2"
+tbl.Frame2.Position = UDim2.new(0.330142, 0, 0.267036, 0)
+tbl.Frame2.Parent = tbl.ScriptHubPaid
+
+tbl.Hub.TextWrapped = true
+tbl.Hub.TextStrokeTransparency = 0
+tbl.Hub.ZIndex = 4
+tbl.Hub.BorderSizePixel = 0
+tbl.Hub.TextScaled = true
+tbl.Hub.BackgroundColor3 = Color3.fromRGB(99, 99, 99)
+tbl.Hub.Position = UDim2.new(0.803851, 0, 0, 0)
+tbl.Hub.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Hub.Name = "Hub"
+tbl.Hub.TextSize = 14
+tbl.Hub.Size = UDim2.new(0.19469, 0, 0.0804878, 0)
+tbl.Hub.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Hub.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Hub.Text = "Hub"
+tbl.Hub.Parent = tbl.Frame2
+
+tbl.LocalScript_3.Name = "LocalScript"
+tbl.LocalScript_3.Parent = tbl.Hub
+
+tbl.UICorner_33.Parent = tbl.Hub
+
+tbl.UICorner_34.Parent = tbl.Frame2
+
+tbl.Panel_1.BorderSizePixel = 0
+tbl.Panel_1.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+tbl.Panel_1.Size = UDim2.new(1, 0, 0.0820399, 0)
+tbl.Panel_1.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Panel_1.Name = "Panel"
+tbl.Panel_1.Parent = tbl.Frame2
+
+tbl.UICorner_35.Parent = tbl.Panel_1
+
+tbl.TextLabel_1.TextWrapped = true
+tbl.TextLabel_1.TextStrokeTransparency = 0
+tbl.TextLabel_1.BorderSizePixel = 0
+tbl.TextLabel_1.TextScaled = true
+tbl.TextLabel_1.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.TextLabel_1.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.TextLabel_1.Position = UDim2.new(0.0103687, 0, -0.189189, 0)
+tbl.TextLabel_1.TextSize = 14
+tbl.TextLabel_1.Size = UDim2.new(0.230415, 0, 1.35135, 0)
+tbl.TextLabel_1.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.TextLabel_1.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.TextLabel_1.Text = "Settings"
+tbl.TextLabel_1.BackgroundTransparency = 1
+tbl.TextLabel_1.Parent = tbl.Panel_1
+
+tbl.Dragable_1.Name = "Dragable"
+tbl.Dragable_1.Parent = tbl.Frame2
+
+tbl.Tabs.BorderSizePixel = 0
+tbl.Tabs.BackgroundColor3 = Color3.fromRGB(91, 91, 91)
+tbl.Tabs.Size = UDim2.new(1, 0, 0.0820399, 0)
+tbl.Tabs.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Tabs.Name = "Tabs"
+tbl.Tabs.Position = UDim2.new(0, 0, 0.960976, 0)
+tbl.Tabs.Parent = tbl.Frame2
+
+tbl.UICorner_36.Parent = tbl.Tabs
+
+tbl.Colors.TextWrapped = true
+tbl.Colors.TextStrokeTransparency = 0
+tbl.Colors.BorderSizePixel = 0
+tbl.Colors.TextScaled = true
+tbl.Colors.BackgroundColor3 = Color3.fromRGB(140, 140, 140)
+tbl.Colors.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Colors.Name = "Colors"
+tbl.Colors.TextSize = 14
+tbl.Colors.Size = UDim2.new(0.294985, 0, 1, 0)
+tbl.Colors.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Colors.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Colors.Text = "Colours"
+tbl.Colors.Parent = tbl.Tabs
+
+tbl.LocalScript_4.Name = "LocalScript"
+tbl.LocalScript_4.Parent = tbl.Colors
+
+tbl.UICorner_37.Parent = tbl.Colors
+
+tbl.Backgrounds.TextWrapped = true
+tbl.Backgrounds.TextStrokeTransparency = 0
+tbl.Backgrounds.BorderSizePixel = 0
+tbl.Backgrounds.TextScaled = true
+tbl.Backgrounds.BackgroundColor3 = Color3.fromRGB(140, 140, 140)
+tbl.Backgrounds.Position = UDim2.new(0.70354, 0, 0, 0)
+tbl.Backgrounds.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.Backgrounds.Name = "Backgrounds"
+tbl.Backgrounds.TextSize = 14
+tbl.Backgrounds.Size = UDim2.new(0.294985, 0, 1, 0)
+tbl.Backgrounds.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Backgrounds.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Backgrounds.Text = "Backgrounds"
+tbl.Backgrounds.Parent = tbl.Tabs
+
+tbl.LocalScript_5.Name = "LocalScript"
+tbl.LocalScript_5.Parent = tbl.Backgrounds
+
+tbl.UICorner_38.Parent = tbl.Backgrounds
+
+tbl.ColorFrame.BorderSizePixel = 0
+tbl.ColorFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.ColorFrame.Size = UDim2.new(1, 0, 0.836585, 0)
+tbl.ColorFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.ColorFrame.BackgroundTransparency = 1
+tbl.ColorFrame.Name = "ColorFrame"
+tbl.ColorFrame.Position = UDim2.new(0, 0, 0.0804878, 0)
+tbl.ColorFrame.Parent = tbl.Frame2
+
+tbl.Blue.ImageColor3 = Color3.fromRGB(14, 19, 102)
+tbl.Blue.BorderSizePixel = 0
+tbl.Blue.ScaleType = Enum.ScaleType.Fit
+tbl.Blue.Position = UDim2.new(0.489745, 0, 0.208917, 0)
+tbl.Blue.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Blue.Name = "Blue"
+tbl.Blue.Image = "rbxassetid://11953932826"
+tbl.Blue.Size = UDim2.new(0.109075, 0, 0.213034, 0)
+tbl.Blue.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Blue.BackgroundTransparency = 1
+tbl.Blue.Parent = tbl.ColorFrame
+
+tbl.LocalScript_6.Name = "LocalScript"
+tbl.LocalScript_6.Parent = tbl.Blue
+
+tbl.UICorner_39.Parent = tbl.Blue
+
+tbl.White.BorderSizePixel = 0
+tbl.White.ScaleType = Enum.ScaleType.Fit
+tbl.White.Position = UDim2.new(0.314927, 0, 0.208917, 0)
+tbl.White.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.White.Name = "White"
+tbl.White.Image = "rbxassetid://11953932826"
+tbl.White.Size = UDim2.new(0.109075, 0, 0.213034, 0)
+tbl.White.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.White.BackgroundTransparency = 1
+tbl.White.Parent = tbl.ColorFrame
+
+tbl.LocalScript_7.Name = "LocalScript"
+tbl.LocalScript_7.Parent = tbl.White
+
+tbl.UICorner_40.Parent = tbl.White
+
+tbl.Black.ImageColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Black.BorderSizePixel = 0
+tbl.Black.ScaleType = Enum.ScaleType.Fit
+tbl.Black.Position = UDim2.new(0.140109, 0, 0.208917, 0)
+tbl.Black.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Black.Name = "Black"
+tbl.Black.Image = "rbxassetid://11953932826"
+tbl.Black.Size = UDim2.new(0.109075, 0, 0.213034, 0)
+tbl.Black.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Black.BackgroundTransparency = 1
+tbl.Black.Parent = tbl.ColorFrame
+
+tbl.UICorner_41.Parent = tbl.Black
+
+tbl.LocalScript_8.Name = "LocalScript"
+tbl.LocalScript_8.Parent = tbl.Black
+
+tbl.TextLabel_2.TextWrapped = true
+tbl.TextLabel_2.TextStrokeTransparency = 0
+tbl.TextLabel_2.BorderSizePixel = 0
+tbl.TextLabel_2.TextScaled = true
+tbl.TextLabel_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.TextLabel_2.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.TextLabel_2.TextSize = 14
+tbl.TextLabel_2.Size = UDim2.new(0.998525, 0, 0.0962099, 0)
+tbl.TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.TextLabel_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.TextLabel_2.Text = "Choose a colour"
+tbl.TextLabel_2.BackgroundTransparency = 1
+tbl.TextLabel_2.Parent = tbl.ColorFrame
+
+tbl.Green.ImageColor3 = Color3.fromRGB(8, 102, 47)
+tbl.Green.BorderSizePixel = 0
+tbl.Green.ScaleType = Enum.ScaleType.Fit
+tbl.Green.Position = UDim2.new(0.663787, 0, 0.211833, 0)
+tbl.Green.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Green.Name = "Green"
+tbl.Green.Image = "rbxassetid://11953932826"
+tbl.Green.Size = UDim2.new(0.109075, 0, 0.213034, 0)
+tbl.Green.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Green.BackgroundTransparency = 1
+tbl.Green.Parent = tbl.ColorFrame
+
+tbl.LocalScript_9.Name = "LocalScript"
+tbl.LocalScript_9.Parent = tbl.Green
+
+tbl.UICorner_42.Parent = tbl.Green
+
+tbl.Backgrounds_1.BorderSizePixel = 0
+tbl.Backgrounds_1.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Backgrounds_1.Size = UDim2.new(1, 0, 0.836585, 0)
+tbl.Backgrounds_1.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Backgrounds_1.BackgroundTransparency = 1
+tbl.Backgrounds_1.Visible = false
+tbl.Backgrounds_1.Name = "Backgrounds"
+tbl.Backgrounds_1.Position = UDim2.new(0, 0, 0.0804878, 0)
+tbl.Backgrounds_1.Parent = tbl.Frame2
+
+tbl.Floppa.BorderSizePixel = 0
+tbl.Floppa.ScaleType = Enum.ScaleType.Fit
+tbl.Floppa.Position = UDim2.new(0.295205, 0, 0.214748, 0)
+tbl.Floppa.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Floppa.Name = "Floppa"
+tbl.Floppa.Image = "rbxassetid://9913176030"
+tbl.Floppa.Size = UDim2.new(0.109075, 0, 0.213034, 0)
+tbl.Floppa.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Floppa.BackgroundTransparency = 1
+tbl.Floppa.Parent = tbl.Backgrounds_1
+
+tbl.UICorner_43.Parent = tbl.Floppa
+
+tbl.LocalScript_10.Name = "LocalScript"
+tbl.LocalScript_10.Parent = tbl.Floppa
+
+tbl.Nothing.BorderSizePixel = 0
+tbl.Nothing.ScaleType = Enum.ScaleType.Fit
+tbl.Nothing.Position = UDim2.new(0.122384, 0, 0.214748, 0)
+tbl.Nothing.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Nothing.Name = "Nothing"
+tbl.Nothing.Image = "rbxassetid://6790887263"
+tbl.Nothing.Size = UDim2.new(0.109075, 0, 0.213034, 0)
+tbl.Nothing.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Nothing.BackgroundTransparency = 1
+tbl.Nothing.Parent = tbl.Backgrounds_1
+
+tbl.UICorner_44.Parent = tbl.Nothing
+
+tbl.LocalScript_11.Name = "LocalScript"
+tbl.LocalScript_11.Parent = tbl.Nothing
+
+tbl.TextLabel_3.TextWrapped = true
+tbl.TextLabel_3.TextStrokeTransparency = 0
+tbl.TextLabel_3.BorderSizePixel = 0
+tbl.TextLabel_3.TextScaled = true
+tbl.TextLabel_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.TextLabel_3.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+tbl.TextLabel_3.TextSize = 14
+tbl.TextLabel_3.Size = UDim2.new(0.998525, 0, 0.0962099, 0)
+tbl.TextLabel_3.TextColor3 = Color3.fromRGB(255, 255, 255)
+tbl.TextLabel_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.TextLabel_3.Text = "Choose a background"
+tbl.TextLabel_3.BackgroundTransparency = 1
+tbl.TextLabel_3.Parent = tbl.Backgrounds_1
+
+tbl.Amongusmanface.BorderSizePixel = 0
+tbl.Amongusmanface.Position = UDim2.new(0.467772, 0, 0.214748, 0)
+tbl.Amongusmanface.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.Amongusmanface.Name = "Amongusmanface"
+tbl.Amongusmanface.Image = "rbxassetid://9180622665"
+tbl.Amongusmanface.Size = UDim2.new(0.109075, 0, 0.213034, 0)
+tbl.Amongusmanface.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.Amongusmanface.BackgroundTransparency = 1
+tbl.Amongusmanface.Parent = tbl.Backgrounds_1
+
+tbl.UICorner_45.Parent = tbl.Amongusmanface
+
+tbl.LocalScript_12.Name = "LocalScript"
+tbl.LocalScript_12.Parent = tbl.Amongusmanface
+
+tbl.HotDog.BorderSizePixel = 0
+tbl.HotDog.Position = UDim2.new(0.640338, 0, 0.214748, 0)
+tbl.HotDog.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.HotDog.Name = "HotDog"
+tbl.HotDog.Image = "rbxassetid://648059228"
+tbl.HotDog.Size = UDim2.new(0.109075, 0, 0.213034, 0)
+tbl.HotDog.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.HotDog.BackgroundTransparency = 1
+tbl.HotDog.Parent = tbl.Backgrounds_1
+
+tbl.UICorner_46.Parent = tbl.HotDog
+
+tbl.LocalScript_13.Name = "LocalScript"
+tbl.LocalScript_13.Parent = tbl.HotDog
+
+tbl.BeluMom.BorderSizePixel = 0
+tbl.BeluMom.Position = UDim2.new(0.122639, 0, 0.462561, 0)
+tbl.BeluMom.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+tbl.BeluMom.Name = "BeluMom"
+tbl.BeluMom.Image = "rbxassetid://10242464474"
+tbl.BeluMom.Size = UDim2.new(0.109075, 0, 0.213034, 0)
+tbl.BeluMom.BorderColor3 = Color3.fromRGB(0, 0, 0)
+tbl.BeluMom.BackgroundTransparency = 1
+tbl.BeluMom.Parent = tbl.Backgrounds_1
+
+tbl.UICorner_47.Parent = tbl.BeluMom
+
+tbl.LocalScript_14.Name = "LocalScript"
+tbl.LocalScript_14.Parent = tbl.BeluMom
+
+task.spawn(function()
+	local script = tbl.Script
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Max8387/Zendz/main/README.md"))()
+	end)
+	
+	
+	
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_1
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_2
+
+	local button = script.Parent
+	button.MouseButton1Click:Connect(function()
+		while true do
+			for i, v in pairs(game:GetService("Workspace").Orbs:GetChildren()) do
+				wait(0.01) -- change this if game is laggy
+				if v.Name == "Orb" then
+					firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, v, 0)
+				end
+			end
+		end
+	
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_3
+
+	local button = script.Parent
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Nicuse/RobloxScripts/main/SaitamaBattlegrounds.lua"))()
+	end)
+	
+	
+	
+	
+	
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_4
+
+	local button = script.Parent
+	button.MouseButton1Click:Connect(function()
+	local PLAYER = game.Players.LocalPlayer
+	local CurrentCam  = game.Workspace.CurrentCamera
+	local UIS = game:GetService("UserInputService")-- Made By Mick Gordon
+	local WorldToViewportPoint = CurrentCam.WorldToViewportPoint
+	local mouseLocation = UIS.GetMouseLocation
+	game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Made By Mick Gordon", Text = "Enjoy !"})
+	local DeleteMob ={
+		Aimbot= {
+			Enabled = false;
+			TeamCheck = false;-- Made By Mick Gordon
+			WallCheck = false;
+			ShowFov = false;
+			Fov = 0;
+			Smoothing = 0;
+			AimPart = "Head";
+			-- Made By Mick Gordon
+			Keybind = "MouseButton2";
+			Thickness = 1;
+			FovFillColor = Color3.fromRGB(100,0,100);
+			FovColor = Color3.fromRGB(100,0,100);
+			FovFillTransparency = 1;
+			FovTransparenct = 0;
+		};
+		ESP ={
+			Box = {
+				Box = false;-- Made By Mick Gordon
+				Name = false;
+				Distance = false;
+				Health = false;
+				TeamCheck = false;
+				HealthType = "Bar";
+				BoxColor = Color3.fromRGB(75,0,10);
+			};
+			OutLines = {
+				Enabled = false;
+				TeamCheck = false;
+				TeamColor = false;
+				AllwaysShow = true;
+				FillCollor = Color3.fromRGB(75,0,10);
+				FillTrancparenct = 0;
+	
+				OutlineColor = Color3.fromRGB(0,0,0);
+				OutlineTrancparency = 0;
+			};
+			Tracers = {
+				Enabled = false;
+				TeamCheck = false;
+				TeamColor = false;
+				Color = Color3.fromRGB(75,0,10);
+			}
+		}-- Made By Mick Gordon
+	}
+	
+	-- Made By Mick Gordon
+	local Fov = Instance.new("ScreenGui")Fov.Name = "Fov" Fov.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") Fov.ZIndexBehavior = Enum.ZIndexBehavior.Sibling Fov.ResetOnSpawn = false-- i miss you synapse fov
+	local TracersG = Instance.new("ScreenGui")TracersG.Name = "Tracers" TracersG.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") TracersG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling TracersG.ResetOnSpawn = false
+	local FOVFFrame = Instance.new("Frame")FOVFFrame.Parent = Fov FOVFFrame.Name = "FOVFFrame" FOVFFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255) FOVFFrame.BorderColor3 = Color3.fromRGB(0, 0, 0) FOVFFrame.BorderSizePixel = 0 FOVFFrame.BackgroundTransparency = 1 FOVFFrame.AnchorPoint = Vector2.new(0.5, 0.5) FOVFFrame.Position = UDim2.new(0.5, 0,0.5, 0) FOVFFrame.Size = UDim2.new(0, DeleteMob.Aimbot.Fov, 0, DeleteMob.Aimbot.Fov) FOVFFrame.BackgroundTransparency = 1 
+	local UICorner = Instance.new("UICorner")UICorner.CornerRadius = UDim.new(1, 0) UICorner.Parent = FOVFFrame -- Made By Mick Gordon
+	local UIStroke = Instance.new("UIStroke")UIStroke.Color = Color3.fromRGB(100,0,100) UIStroke.Parent = FOVFFrame UIStroke.Thickness = 1 UIStroke.ApplyStrokeMode = "Border" game:GetService("StarterGui"):SetCore("SendNotification", {Title = "https://discord.gg/FsApQ7YNTq", Text = "The Discord For More!"})
+	local BoxC = Instance.new("ScreenGui", game.Workspace) BoxC.Name = "Box"
+	local Higlight = Instance.new("ScreenGui",game.Workspace)
+	local connections = {}
+	-- Made By Mick Gordon
+	local function AddHighlight(plr)
+		local Highlight = Instance.new("Highlight")
+		Highlight.Parent = Higlight
+		Highlight.Name = plr.Name
+		Highlight.Enabled = DeleteMob.ESP.OutLines.Enabled
+		local plrchar = plr.Character
+		if plrchar then
+			Highlight.Adornee = plrchar
+		end
+		connections[plr] = plr.CharacterAdded:Connect(function(char)
+			Highlight.Adornee = char
+		end)
+		local co = coroutine.create(function()
+			while wait(.1) do
+				if plr ~= PLAYER and plr and plr.Character and plr.Character.FindFirstChild(plr.Character, "Humanoid") and plr.Character.Humanoid.Health > 0 then
+					if DeleteMob.ESP.OutLines.Enabled == true then
+						if DeleteMob.ESP.OutLines.TeamCheck == true and plr.TeamColor == PLAYER.TeamColor then
+							Highlight.Enabled = false
+						else
+							Highlight.Enabled = true
+						end
+					else-- Made By Mick Gordon
+						Highlight.Enabled = false
+					end
+					if DeleteMob.ESP.OutLines.TeamColor == true then
+						Highlight.FillColor = plr.TeamColor.Color 
+					else
+						Highlight.FillColor = DeleteMob.ESP.OutLines.FillCollor
+					end
+					if DeleteMob.ESP.OutLines.AllwaysShow == true then
+						Highlight.DepthMode = "AlwaysOnTop" 
+					else
+						Highlight.DepthMode = "Occluded" 
+					end-- Made By Mick Gordon
+					Highlight.OutlineTransparency = DeleteMob.ESP.OutLines.OutlineTrancparency
+					Highlight.OutlineColor = DeleteMob.ESP.OutLines.OutlineColor
+					Highlight.FillTransparency = DeleteMob.ESP.OutLines.FillTrancparenct
+	
+					if not (game:GetService"Players":FindFirstChild(plr.Name)) then
+						Higlight:FindFirstChild(plr.Name):Destroy()
+						coroutine.yield()
+					end
+				else
+					Highlight.Enabled = false
+				end
+			end
+		end)
+		coroutine.resume(co)
+	end
+	-- Made By Mick Gordon
+	local function AddBox(player)
+		local bbg = Instance.new("BillboardGui", BoxC)
+		bbg.Name = player.Name
+		bbg.AlwaysOnTop = true
+		bbg.Size = UDim2.new(4,0,5.4,0)
+		bbg.ClipsDescendants = false
+		bbg.Enabled = false
+		local outlines = Instance.new("Frame", bbg)
+		outlines.Size = UDim2.new(1,0,1,0)
+		outlines.BorderSizePixel = 1
+		outlines.BackgroundTransparency = 1
+		local left = Instance.new("Frame", outlines)
+		left.BorderSizePixel = 1
+		left.Size = UDim2.new(0,(1),1,0)
+		local right = left:Clone()
+		right.Parent = outlines
+		right.Size = UDim2.new(0,-(1),1,0)   
+		right.Position = UDim2.new(1,0,0,0)
+		local up = left:Clone()-- Made By Mick Gordon
+		up.Parent = outlines
+		up.Size = UDim2.new(1,0,0,(1))
+		local down = left:Clone()
+		down.Parent = outlines
+		down.Size = UDim2.new(1,0,0,-(1))
+		down.Position = UDim2.new(0,0,1,0)
+		local info = Instance.new("BillboardGui", bbg)
+		info.Name = "info"
+		info.Size = UDim2.new(3,0,0,54)
+		info.StudsOffset = Vector3.new(3.6,-3,0)
+		info.AlwaysOnTop = true
+		info.ClipsDescendants = false
+		info.Enabled = false
+		local namelabel = Instance.new("TextLabel", info)
+		namelabel.Name = "namelabel"
+		namelabel.BackgroundTransparency = 1
+		namelabel.TextStrokeTransparency = 0
+		namelabel.TextXAlignment = Enum.TextXAlignment.Left
+		namelabel.Size = UDim2.new(0,100,0,18)
+		namelabel.Position = UDim2.new(0,0,0,0)
+		namelabel.Text = player.Name
+		local distancel = Instance.new("TextLabel", info)
+		distancel.Name = "distancelabel"
+		distancel.BackgroundTransparency = 1-- Made By Mick Gordon
+		distancel.TextStrokeTransparency = 0
+		distancel.TextXAlignment = Enum.TextXAlignment.Left
+		distancel.Size = UDim2.new(0,100,0,18)
+		distancel.Position = UDim2.new(0,0,0,18)
+		local healthl = Instance.new("TextLabel", info)
+		healthl.Name = "healthlabel"
+		healthl.BackgroundTransparency = 1
+		healthl.TextStrokeTransparency = 0
+		healthl.TextXAlignment = Enum.TextXAlignment.Left
+		healthl.Size = UDim2.new(0,100,0,18)
+		healthl.Position = UDim2.new(0,0,0,36)
+		local uill = Instance.new("UIListLayout", info)
+		local forhealth = Instance.new("BillboardGui", bbg)
+		forhealth.Name = "forhealth"
+		forhealth.Size = UDim2.new(4.5,0,6,0)
+		forhealth.AlwaysOnTop = true
+		forhealth.ClipsDescendants = false
+		forhealth.Enabled = false
+		local healthbar = Instance.new("Frame", forhealth)
+		healthbar.Name = "healthbar"
+		healthbar.BackgroundColor3 = Color3.fromRGB(40,40,40)
+		healthbar.BorderColor3 = Color3.fromRGB(0,0,0)
+		healthbar.Size = UDim2.new(0.04,0,0.9,0)
+		healthbar.Position = UDim2.new(0,0,0.05,0)
+		local bar = Instance.new("Frame", healthbar)
+		bar.Name = "bar"
+		bar.BorderSizePixel = 0
+		bar.BackgroundColor3 = Color3.fromRGB(94,255,69)
+		bar.AnchorPoint = Vector2.new(0,1)
+		bar.Position = UDim2.new(0,0,1,0)
+		bar.Size = UDim2.new(1,0,1,0)
+		-- Made By Mick Gordon
+		local co = coroutine.create(function()
+			while wait(0.1) do
+				if player ~= PLAYER and player and player.Character and player.Character.FindFirstChild(player.Character, "Humanoid") and player.Character.Humanoid.Health > 0 then
+					bbg.Adornee = player.Character.HumanoidRootPart
+					info.Adornee = player.Character.HumanoidRootPart
+					forhealth.Adornee = player.Character.HumanoidRootPart
+					if DeleteMob.ESP.Box.Box == true then
+						outlines.Visible = true
+					else
+						outlines.Visible = false
+					end
+					outlines.BackgroundTransparency = 1
+					if DeleteMob.ESP.Box.Health == true then
+						if player.Character:FindFirstChild("Humanoid") ~= nil then
+							healthl.Text = "Health: "..math.floor(player.Character:FindFirstChild"Humanoid".Health)
+							healthbar.bar.Size = UDim2.new(1,0,player.Character:FindFirstChild"Humanoid".Health/player.Character:FindFirstChild"Humanoid".MaxHealth,0)
+						end
+						if DeleteMob.ESP.Box.HealthType == "Text" then
+							healthbar.Visible = false
+							healthl.Visible = true
+						end-- Made By Mick Gordon
+						if DeleteMob.ESP.Box.HealthType == "Bar" then
+							healthl.Visible = false
+							healthbar.Visible = true
+						end
+						if DeleteMob.ESP.Box.HealthType == "Both" then
+							healthl.Visible = true
+							healthbar.Visible = true
+						end
+					else
+						healthl.Visible = false
+						healthbar.Visible = false
+					end
+					if DeleteMob.ESP.Box.Name then
+						namelabel.Visible = true
+					else
+						namelabel.Visible = false
+					end
+					-- Made By Mick Gordon
+					if DeleteMob.ESP.Box.Distance == true then
+						distancel.Visible = true
+						if PLAYER.Character and PLAYER.Character:FindFirstChild("HumanoidRootPart") ~= nil then
+							distancel.Text = "Distance: "..math.floor(0.5+(PLAYER.Character:FindFirstChild"HumanoidRootPart".Position - player.Character:FindFirstChild"HumanoidRootPart".Position).magnitude)
+						end
+					else
+						distancel.Visible = false
+					end
+					if DeleteMob.ESP.Box.TeamCheck == true and player.TeamColor == PLAYER.TeamColor then
+						bbg.Enabled = false
+						info.Enabled = false
+						forhealth.Enabled = false
+					else
+						bbg.Enabled = true
+						info.Enabled = true
+						forhealth.Enabled = true
+					end
+					-- Made By Mick Gordon
+					if DeleteMob.ESP.Box.TeamColor == true then
+						left.BackgroundColor3 = player.TeamColor.Color
+						right.BackgroundColor3 = player.TeamColor.Color
+						up.BackgroundColor3 = player.TeamColor.Color
+						down.BackgroundColor3 = player.TeamColor.Color
+						outlines.BackgroundColor3 = DeleteMob.ESP.Box.BoxColor
+					else
+						outlines.BackgroundColor3 = DeleteMob.ESP.Box.BoxColor
+						left.BackgroundColor3 = DeleteMob.ESP.Box.BoxColor
+						right.BackgroundColor3 = DeleteMob.ESP.Box.BoxColor
+						up.BackgroundColor3 = DeleteMob.ESP.Box.BoxColor
+						down.BackgroundColor3 = DeleteMob.ESP.Box.BoxColor
+						healthl.TextColor3 = DeleteMob.ESP.Box.BoxColor
+						distancel.TextColor3 = DeleteMob.ESP.Box.BoxColor
+						namelabel.TextColor3 = DeleteMob.ESP.Box.BoxColor
+					end
+					if not (game:GetService"Players":FindFirstChild(player.Name)) then
+						BoxC:FindFirstChild(player.Name):Destroy()
+						coroutine.yield()
+					end-- Made By Mick Gordon
+				else
+					bbg.Enabled = false
+					bbg.Adornee = nil
+					info.Adornee = nil
+					info.Enabled = false
+					forhealth.Adornee = nil
+					forhealth.Enabled = false
+				end
+			end 
+		end)
+		coroutine.resume(co)
+	end
+	local function AddTracers(Player) -- Tracers Without Lib OMG !!!!, Needs Some Adjustments To The End Pos
+		local tracer = Instance.new("Frame")
+		tracer.Parent = TracersG
+		tracer.Name = Player.Name
+		tracer.Active = false
+		tracer.AnchorPoint = Vector2.new(.5, .5)
+		tracer.Visible = false
+		local co = coroutine.create(function()
+			game:GetService("RunService").RenderStepped:Connect(function()
+				if Player ~= PLAYER and Player and Player.Character and Player.Character.FindFirstChild(Player.Character, "Humanoid") and Player.Character.Humanoid.Health > 0 then
+					local TargetPart = Player.Character:FindFirstChild("HumanoidRootPart")
+					local ScreenPoint, OnScreen = CurrentCam:WorldToScreenPoint(TargetPart.Position)
+					local distance 
+					-- Made By Mick Gordon
+					distance = math.floor(0.5+(game.Workspace.CurrentCamera.CFrame.Position - Player.Character:WaitForChild("HumanoidRootPart").Position).magnitude)
+					local screenpointmain = Vector2.new(ScreenPoint.X, ScreenPoint.Y + (2500 / distance)) --  / distance so it can be at the bottom of the box.
+					local posd = UIS:GetMouseLocation()
+					local MouseOrigin = Vector2.new(posd.X, posd.Y - 36)
+					local Origin = Vector2.new(CurrentCam.ViewportSize.X/2, CurrentCam.ViewportSize.Y - 1)
+					local Position = (Origin + screenpointmain) / 2
+					local Length = (Origin - screenpointmain).Magnitude
+					tracer.Rotation = math.deg(math.atan2(screenpointmain.Y - Origin.Y, screenpointmain.X - Origin.X))
+					Position = (Origin + screenpointmain) / 2
+					Length = (Origin - screenpointmain).Magnitude
+					tracer.Rotation = math.deg(math.atan2(screenpointmain.Y - Origin.Y, screenpointmain.X - Origin.X))
+					if OnScreen then
+						if DeleteMob.ESP.Tracers.Enabled == true and OnScreen then
+							if DeleteMob.ESP.Tracers.TeamCheck == true then
+								if Player.TeamColor == PLAYER.TeamColor then
+									tracer.Visible = false
+								else
+									tracer.Visible = true
+								end
+							else -- Made By Mick Gordon
+								tracer.Visible = true
+							end
+						else
+							tracer.Visible = false
+						end-- Made By Mick Gordon
+	
+						if DeleteMob.ESP.Tracers.TeamColor == true then
+							tracer.BackgroundColor3 = Player.TeamColor.Color
+						else
+							tracer.BackgroundColor3 = DeleteMob.ESP.Tracers.Color
+						end
+						tracer.BorderColor3 = Color3.fromRGB(27, 42, 53)
+						tracer.Position = UDim2.new(0, Position.X, 0, Position.Y)
+						tracer.Size = UDim2.new(0, Length, 0, 2)
+					else
+						tracer.Visible = false
+					end
+					if not (game:GetService"Players":FindFirstChild(Player.Name)) then
+						Fov:FindFirstChild(Player.Name):Destroy()
+						coroutine.yield()
+					end
+				else
+					tracer.Visible = false
+				end
+			end)
+		end)
+		coroutine.resume(co)-- Made By Mick Gordon
+	end
+	
+	function isVisible(p, ...)
+		if not (DeleteMob.Aimbot.WallCheck == true) then
+			return true
+		end
+		return #CurrentCam:GetPartsObscuringTarget({ p }, { CurrentCam, PLAYER.Character, ... }) == 0 
+	end-- Made By Mick Gordon
+	
+	function CameraGetClosestToMouse(Fov)
+		local AimFov = Fov
+		local targetPos = nil
+		for i,v in pairs (game:GetService("Players"):GetPlayers()) do
+			if v ~= PLAYER then
+				if DeleteMob.Aimbot.TeamCheck == true then
+					if v.Character and v.Character:FindFirstChild(DeleteMob.Aimbot.AimPart) and v.Character.Humanoid and v.Character.Humanoid.Health > 0 and not (v.Team == PLAYER.Team) then
+						local screen_pos, on_screen = WorldToViewportPoint(CurrentCam, v.Character[DeleteMob.Aimbot.AimPart].Position)
+						local screen_pos_2D = Vector2.new(screen_pos.X, screen_pos.Y)
+						local new_magnitude = (screen_pos_2D - mouseLocation(UIS)).Magnitude
+						if on_screen and new_magnitude < AimFov and isVisible(v.Character[DeleteMob.Aimbot.AimPart].Position, v.Character.Head.Parent) then
+							AimFov = new_magnitude
+							targetPos = v-- Made By Mick Gordon
+						end
+					end-- Made By Mick Gordon
+				else
+					if v.Character and v.Character:FindFirstChild(DeleteMob.Aimbot.AimPart) and v.Character.Humanoid and v.Character.Humanoid.Health > 0 then
+						local screen_pos, on_screen = WorldToViewportPoint(CurrentCam, v.Character[DeleteMob.Aimbot.AimPart].Position)
+						local screen_pos_2D = Vector2.new(screen_pos.X, screen_pos.Y)
+						local new_magnitude = (screen_pos_2D - mouseLocation(UIS)).Magnitude
+						if on_screen and new_magnitude < AimFov and isVisible(v.Character[DeleteMob.Aimbot.AimPart].Position, v.Character.Head.Parent) then
+							AimFov = new_magnitude
+							targetPos = v
+						end
+					end
+				end
+			end
+		end
+		return targetPos
+	end
+	local function aimAt(pos, smooth)
+		local AimPart = pos.Character:FindFirstChild(DeleteMob.Aimbot.AimPart)
+		if AimPart then
+			local LookAt = nil
+			local Distance = math.floor(0.5+(PLAYER.Character:FindFirstChild"HumanoidRootPart".Position - pos.Character:FindFirstChild"HumanoidRootPart".Position).magnitude)
+			if Distance > 100  then
+				local distChangeBig = Distance / 10
+				LookAt = CurrentCam.CFrame:PointToWorldSpace(Vector3.new(0,0,-smooth * distChangeBig)):Lerp(AimPart.Position,.01) -- No one esle do camera smoothing ? tf
+			else-- Made By Mick Gordon
+				local distChangeSmall = Distance / 10
+				LookAt = CurrentCam.CFrame:PointToWorldSpace(Vector3.new(0,0,-smooth * distChangeSmall)):Lerp(AimPart.Position,.01) -- No one esle do camera smoothing ? tf
+			end
+			CurrentCam.CFrame = CFrame.lookAt(CurrentCam.CFrame.Position, LookAt)
+		end
+	end
+	-- Cant Be Botherd To Clean This Up
+	local CheatEngineDeleteMob = Instance.new("ScreenGui")
+	local DeleteMobF = Instance.new("Frame")
+	local TextBox = Instance.new("TextBox")
+	local Name = Instance.new("TextLabel")
+	local Line = Instance.new("Frame")
+	local Line_2 = Instance.new("Frame")
+	local AimBotSection = Instance.new("Frame")
+	local UIListLayout = Instance.new("UIListLayout")
+	local ABE = Instance.new("TextButton")
+	local ABWC = Instance.new("TextButton")
+	local ABTC = Instance.new("TextButton")
+	local ABSF = Instance.new("TextButton")
+	local Frame = Instance.new("Frame")
+	local Slider3 = Instance.new("Frame")-- Made By Mick Gordon
+	local UICorner = Instance.new("UICorner")
+	local Fill1 = Instance.new("Frame")
+	local UICorner_2 = Instance.new("UICorner")
+	local UIGradient = Instance.new("UIGradient")
+	local TriggerFov = Instance.new("TextButton")
+	local Numbers = Instance.new("TextLabel")
+	local TextLabel = Instance.new("TextLabel")
+	local Frame_2 = Instance.new("Frame")
+	local Slider4 = Instance.new("Frame")
+	local UICorner_3 = Instance.new("UICorner")
+	local Fill2 = Instance.new("Frame")
+	local UICorner_4 = Instance.new("UICorner")
+	local UIGradient_2 = Instance.new("UIGradient")
+	local TriggerSmoothing = Instance.new("TextButton")-- Made By Mick Gordon
+	local Numbers_2 = Instance.new("TextLabel")
+	local TextLabel_2 = Instance.new("TextLabel")
+	local TextLabel_3 = Instance.new("TextLabel")
+	local Allways_Show = Instance.new("TextButton")
+	local TextLabel_4 = Instance.new("TextLabel")
+	local ESPSection = Instance.new("Frame")
+	local UIListLayout_2 = Instance.new("UIListLayout")
+	local BBE = Instance.new("TextButton")
+	local BTC = Instance.new("TextButton")
+	local BBN = Instance.new("TextButton")
+	local BBD = Instance.new("TextButton")
+	local BBH = Instance.new("TextButton")
+	local TextLabel_5 = Instance.new("TextLabel")
+	local BBHT = Instance.new("TextButton")
+	local TextLabel_6 = Instance.new("TextLabel")
+	local TextLabel_7 = Instance.new("TextLabel")
+	local Frame_3 = Instance.new("Frame")
+	local UIListLayout_3 = Instance.new("UIListLayout")
+	local Box_R = Instance.new("TextBox")
+	local Box_G = Instance.new("TextBox")
+	local Box_B = Instance.new("TextBox")
+	local TextLabel_8 = Instance.new("TextLabel")
+	local ESPSection_2 = Instance.new("Frame")
+	local UIListLayout_4 = Instance.new("UIListLayout")
+	local OE = Instance.new("TextButton")
+	local OTC = Instance.new("TextButton")-- Made By Mick Gordon
+	local Frame_4 = Instance.new("Frame")
+	local Slider1 = Instance.new("Frame")
+	local UICorner_5 = Instance.new("UICorner")
+	local Fill3 = Instance.new("Frame")
+	local UICorner_6 = Instance.new("UICorner")
+	local UIGradient_3 = Instance.new("UIGradient")
+	local TriggerOutTans = Instance.new("TextButton")
+	local Numbers_3 = Instance.new("TextLabel")
+	local TextLabel_9 = Instance.new("TextLabel")
+	local Frame_5 = Instance.new("Frame")
+	local Slider2 = Instance.new("Frame")
+	local UICorner_7 = Instance.new("UICorner")
+	local Fill4 = Instance.new("Frame")
+	local UICorner_8 = Instance.new("UICorner")
+	local UIGradient_4 = Instance.new("UIGradient")
+	local TriggerFill = Instance.new("TextButton")
+	local Numbers_4 = Instance.new("TextLabel")
+	local TextLabel_10 = Instance.new("TextLabel")
+	local TextLabel_11 = Instance.new("TextLabel")
+	local Frame_6 = Instance.new("Frame")
+	local UIListLayout_5 = Instance.new("UIListLayout")
+	local Outlines_R = Instance.new("TextBox")
+	local Outlines_G = Instance.new("TextBox")
+	local Outlines_B = Instance.new("TextBox")
+	local TextLabel_12 = Instance.new("TextLabel")
+	local Frame_7 = Instance.new("Frame")
+	local UIListLayout_6 = Instance.new("UIListLayout")
+	local FillOutlines_R = Instance.new("TextBox")
+	local FillOutlines_G = Instance.new("TextBox")
+	local FillOutlines_B = Instance.new("TextBox")
+	local Tracerssection = Instance.new("Frame")
+	local UIListLayout_7 = Instance.new("UIListLayout")
+	local TE = Instance.new("TextButton")
+	local TTC = Instance.new("TextButton")
+	local TTCOlor = Instance.new("TextButton")
+	local Frame_8 = Instance.new("Frame")
+	local UIListLayout_8 = Instance.new("UIListLayout")
+	local Tracers_R = Instance.new("TextBox")
+	local Tracers_G = Instance.new("TextBox")
+	local Tracers_B = Instance.new("TextBox")-- Made By Mick Gordon
+	local Unknown = Instance.new("Frame")
+	local UIListLayout_9 = Instance.new("UIListLayout")
+	local TextLabel_13 = Instance.new("TextLabel")
+	local TextLabel_14 = Instance.new("TextLabel")
+	local Open = Instance.new("Frame")
+	local TextButton = Instance.new("TextButton")
+	--Properties:
+	CheatEngineDeleteMob.Name = "CheatEngineDeleteMob"
+	CheatEngineDeleteMob.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	CheatEngineDeleteMob.Enabled = true
+	CheatEngineDeleteMob.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	CheatEngineDeleteMob.DisplayOrder = 10
+	CheatEngineDeleteMob.ResetOnSpawn = false
+	-- Made By Mick Gordon
+	DeleteMobF.Name = "DeleteMobF"
+	DeleteMobF.Parent = CheatEngineDeleteMob
+	DeleteMobF.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	DeleteMobF.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	DeleteMobF.Position = UDim2.new(0.144998878, 0, 0.328040659, 0)
+	DeleteMobF.Size = UDim2.new(0, 1213, 0, 398)
+	DeleteMobF.ZIndex = 10
+	DeleteMobF.Draggable = true
+	DeleteMobF.Active = true
+	TextBox.Parent = DeleteMobF
+	TextBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextBox.BackgroundTransparency = 1.000
+	TextBox.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextBox.BorderSizePixel = 0
+	TextBox.Position = UDim2.new(0.791149139, 0, 0.0127403988, 0)
+	TextBox.Size = UDim2.new(0, 200, 0, 23)
+	TextBox.ClearTextOnFocus = false
+	TextBox.Font = Enum.Font.Roboto
+	TextBox.PlaceholderText = "https://discord.gg/FsApQ7YNTq"
+	TextBox.Text = "https://discord.gg/FsApQ7YNTq - Double Click Me"
+	TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextBox.TextSize = 14.000
+	Name.Name = "Name"
+	Name.Parent = DeleteMobF
+	Name.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Name.BackgroundTransparency = 1.000
+	Name.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Name.BorderSizePixel = 0
+	Name.Position = UDim2.new(0.0178597774, 0, 0.00456260797, 0)
+	Name.Size = UDim2.new(0, 200, 0, 31)
+	Name.Font = Enum.Font.Gotham
+	Name.Text = "DeleteMob | Cheat Engine"
+	Name.TextColor3 = Color3.fromRGB(17, 223, 255)
+	Name.TextSize = 19.000
+	Line.Name = "Line"
+	Line.Parent = DeleteMobF
+	Line.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Line.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Line.BorderSizePixel = 0
+	Line.Position = UDim2.new(0, 0, 0.0804020092, 0)
+	Line.Size = UDim2.new(0, 1213, 0, 1)
+	Line_2.Name = "Line"
+	Line_2.Parent = DeleteMobF
+	Line_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Line_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Line_2.BorderSizePixel = 0
+	Line_2.Position = UDim2.new(0.205276027, 0, 0.0828348249, 0)
+	Line_2.Size = UDim2.new(0, 1, 0, 365)
+	-- Made By Mick Gordon
+	AimBotSection.Name = "AimBotSection"
+	AimBotSection.Parent = DeleteMobF
+	AimBotSection.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	AimBotSection.BackgroundTransparency = 1.000
+	AimBotSection.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	AimBotSection.BorderSizePixel = 0
+	AimBotSection.Position = UDim2.new(0.0604648069, 0, 0.160724282, 0)
+	AimBotSection.Size = UDim2.new(0, 100, 0, 334)
+	UIListLayout.Parent = AimBotSection
+	UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout.Padding = UDim.new(0, 5)
+	ABE.Name = "ABE"
+	ABE.Parent = AimBotSection
+	ABE.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	ABE.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	ABE.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	ABE.Size = UDim2.new(0, 164, 0, 29)
+	ABE.Font = Enum.Font.Gotham
+	ABE.Text = "Enable"
+	ABE.TextColor3 = Color3.fromRGB(255, 255, 255)
+	ABE.TextSize = 16.000
+	ABWC.Name = "ABWC"
+	ABWC.Parent = AimBotSection
+	ABWC.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	ABWC.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	ABWC.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	ABWC.Size = UDim2.new(0, 164, 0, 29)
+	ABWC.Font = Enum.Font.Gotham
+	ABWC.Text = "Wall Check"
+	ABWC.TextColor3 = Color3.fromRGB(255, 255, 255)
+	ABWC.TextSize = 16.000
+	ABTC.Name = "ABTC"
+	ABTC.Parent = AimBotSection
+	ABTC.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	ABTC.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	ABTC.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	ABTC.Size = UDim2.new(0, 164, 0, 29)
+	ABTC.Font = Enum.Font.Gotham
+	ABTC.Text = "Team Check"
+	ABTC.TextColor3 = Color3.fromRGB(255, 255, 255)
+	ABTC.TextSize = 16.000
+	ABSF.Name = "ABSF"
+	ABSF.Parent = AimBotSection
+	ABSF.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	ABSF.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	ABSF.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	ABSF.Size = UDim2.new(0, 164, 0, 29)
+	ABSF.Font = Enum.Font.Gotham
+	ABSF.Text = "Show Fov"
+	ABSF.TextColor3 = Color3.fromRGB(255, 255, 255)
+	ABSF.TextSize = 16.000
+	Frame.Parent = AimBotSection
+	Frame.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Frame.BackgroundTransparency = 0.700
+	Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Frame.BorderSizePixel = 0
+	Frame.Position = UDim2.new(-0.550000012, 0, 0.739130437, 0)
+	Frame.Size = UDim2.new(0, 230, 0, 50)
+	Slider3.Name = "Slider3"
+	Slider3.Parent = Frame
+	Slider3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Slider3.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Slider3.BorderSizePixel = 0
+	Slider3.Position = UDim2.new(0.0629399866, 0, 0.45120728, 0)
+	Slider3.Size = UDim2.new(0, 200, 0, 15)
+	UICorner.Parent = Slider3
+	Fill1.Name = "Fill1"
+	Fill1.Parent = Slider3
+	Fill1.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+	Fill1.BackgroundTransparency = 0.200
+	Fill1.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Fill1.BorderSizePixel = 0
+	Fill1.Size = UDim2.new(0, 100, 0, 15)
+	UICorner_2.Parent = Fill1
+	UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(17, 223, 255)), ColorSequenceKeypoint.new(0.29, Color3.fromRGB(17, 223, 255)), ColorSequenceKeypoint.new(0.43, Color3.fromRGB(18, 218, 249)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(52, 52, 52))}
+	UIGradient.Parent = Fill1
+	-- Made By Mick Gordon
+	TriggerFov.Name = "TriggerFov"
+	TriggerFov.Parent = Slider3
+	TriggerFov.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TriggerFov.BackgroundTransparency = 1.000
+	TriggerFov.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TriggerFov.BorderSizePixel = 0
+	TriggerFov.Size = UDim2.new(1, 0, 1, 0)
+	TriggerFov.Font = Enum.Font.SourceSans
+	TriggerFov.Text = ""
+	TriggerFov.TextColor3 = Color3.fromRGB(0, 0, 0)
+	TriggerFov.TextSize = 14.000
+	Numbers.Name = "Numbers"
+	Numbers.Parent = Frame
+	Numbers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers.BackgroundTransparency = 1.000
+	Numbers.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers.BorderSizePixel = 0
+	Numbers.Position = UDim2.new(0.79130435, 0, 0, 0)
+	Numbers.Size = UDim2.new(0, 50, 0, 23)
+	Numbers.Font = Enum.Font.Gotham
+	Numbers.Text = "350"
+	Numbers.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers.TextSize = 14.000
+	TextLabel.Parent = Frame
+	TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel.BackgroundTransparency = 1.000
+	TextLabel.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel.BorderSizePixel = 0
+	TextLabel.Position = UDim2.new(0.0608695634, 0, 0, 0)
+	TextLabel.Size = UDim2.new(0, 50, 0, 23)
+	TextLabel.Font = Enum.Font.Gotham
+	TextLabel.Text = "Fov"
+	TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel.TextSize = 14.000
+	Frame_2.Parent = AimBotSection
+	Frame_2.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Frame_2.BackgroundTransparency = 0.700
+	Frame_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Frame_2.BorderSizePixel = 0
+	Frame_2.Position = UDim2.new(-0.550000012, 0, 0.739130437, 0)
+	Frame_2.Size = UDim2.new(0, 230, 0, 50)
+	Slider4.Name = "Slider4"
+	Slider4.Parent = Frame_2
+	Slider4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Slider4.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Slider4.BorderSizePixel = 0
+	Slider4.Position = UDim2.new(0.0629399866, 0, 0.45120728, 0)
+	Slider4.Size = UDim2.new(0, 200, 0, 15)
+	UICorner_3.Parent = Slider4
+	Fill2.Name = "Fill2"
+	Fill2.Parent = Slider4
+	Fill2.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+	Fill2.BackgroundTransparency = 0.200
+	Fill2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Fill2.BorderSizePixel = 0
+	Fill2.Size = UDim2.new(0, 0, 0, 15)
+	UICorner_4.Parent = Fill2
+	UIGradient_2.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(17, 223, 255)), ColorSequenceKeypoint.new(0.29, Color3.fromRGB(17, 223, 255)), ColorSequenceKeypoint.new(0.43, Color3.fromRGB(18, 218, 249)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(52, 52, 52))}-- Made By Mick Gordon
+	UIGradient_2.Parent = Fill2
+	TriggerSmoothing.Name = "TriggerSmoothing"
+	TriggerSmoothing.Parent = Slider4
+	TriggerSmoothing.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TriggerSmoothing.BackgroundTransparency = 1.000
+	TriggerSmoothing.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TriggerSmoothing.BorderSizePixel = 0
+	TriggerSmoothing.Size = UDim2.new(1, 0, 1, 0)
+	TriggerSmoothing.Font = Enum.Font.SourceSans
+	TriggerSmoothing.Text = ""
+	TriggerSmoothing.TextColor3 = Color3.fromRGB(0, 0, 0)
+	TriggerSmoothing.TextSize = 14.000
+	-- Made By Mick Gordon
+	Numbers_2.Name = "Numbers"
+	Numbers_2.Parent = Frame_2
+	Numbers_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers_2.BackgroundTransparency = 1.000
+	Numbers_2.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers_2.BorderSizePixel = 0
+	Numbers_2.Position = UDim2.new(0.79130435, 0, 0, 0)
+	Numbers_2.Size = UDim2.new(0, 50, 0, 23)
+	Numbers_2.Font = Enum.Font.Gotham
+	Numbers_2.Text = "0"
+	Numbers_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers_2.TextSize = 14.000
+	TextLabel_2.Parent = Frame_2
+	TextLabel_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_2.BackgroundTransparency = 1.000
+	TextLabel_2.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_2.BorderSizePixel = 0
+	TextLabel_2.Position = UDim2.new(0.0608695634, 0, 0, 0)
+	TextLabel_2.Size = UDim2.new(0, 50, 0, 23)
+	TextLabel_2.Font = Enum.Font.Gotham
+	TextLabel_2.Text = "Smoothing"
+	TextLabel_2.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_2.TextSize = 14.000
+	TextLabel_3.Parent = AimBotSection
+	TextLabel_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_3.BackgroundTransparency = 1.000
+	TextLabel_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel_3.BorderSizePixel = 0
+	TextLabel_3.Position = UDim2.new(0.0700000003, 0, 0.20869565, 0)
+	TextLabel_3.Size = UDim2.new(0, 100, 0, 17)
+	TextLabel_3.Font = Enum.Font.Gotham
+	TextLabel_3.Text = "Aim Part"
+	TextLabel_3.TextColor3 = Color3.fromRGB(17, 223, 255)
+	TextLabel_3.TextSize = 21.000
+	Allways_Show.Name = "Allways_Show"
+	Allways_Show.Parent = AimBotSection
+	Allways_Show.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Allways_Show.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Allways_Show.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	Allways_Show.Size = UDim2.new(0, 164, 0, 29)
+	Allways_Show.Font = Enum.Font.Gotham
+	Allways_Show.Text = "HEAD, torso"
+	Allways_Show.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Allways_Show.TextSize = 16.000
+	TextLabel_4.Parent = DeleteMobF
+	TextLabel_4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_4.BackgroundTransparency = 1.000
+	TextLabel_4.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel_4.BorderSizePixel = 0
+	TextLabel_4.Position = UDim2.new(0.00569662312, 0, 0.100655407, 0)
+	TextLabel_4.Size = UDim2.new(0, 100, 0, 17)
+	TextLabel_4.Font = Enum.Font.Gotham
+	TextLabel_4.Text = "Aim Bot"
+	TextLabel_4.TextColor3 = Color3.fromRGB(17, 223, 255)
+	TextLabel_4.TextSize = 18.000
+	TextLabel_4.TextXAlignment = Enum.TextXAlignment.Left
+	ESPSection.Name = "ESPSection"
+	ESPSection.Parent = DeleteMobF
+	ESPSection.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	ESPSection.BackgroundTransparency = 1.000
+	ESPSection.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	ESPSection.BorderSizePixel = 0
+	ESPSection.Position = UDim2.new(0.26986298, 0, 0.160724282, 0)
+	ESPSection.Size = UDim2.new(0, 100, 0, 334)
+	-- Made By Mick Gordon
+	UIListLayout_2.Parent = ESPSection
+	UIListLayout_2.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout_2.Padding = UDim.new(0, 5)
+	BBE.Name = "BBE"
+	BBE.Parent = ESPSection
+	BBE.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	BBE.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	BBE.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	BBE.Size = UDim2.new(0, 164, 0, 29)
+	BBE.Font = Enum.Font.Gotham
+	BBE.Text = "Box"
+	BBE.TextColor3 = Color3.fromRGB(255, 255, 255)
+	BBE.TextSize = 16.000
+	BBN.Name = "BBN"
+	BBN.Parent = ESPSection
+	BBN.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	BBN.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	BBN.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	BBN.Size = UDim2.new(0, 164, 0, 29)
+	BBN.Font = Enum.Font.Gotham
+	BBN.Text = "Name"
+	BBN.TextColor3 = Color3.fromRGB(255, 255, 255)
+	BBN.TextSize = 16.000
+	-- Made By Mick Gordon
+	BBD.Name = "BBD"
+	BBD.Parent = ESPSection
+	BBD.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	BBD.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	BBD.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	BBD.Size = UDim2.new(0, 164, 0, 29)
+	BBD.Font = Enum.Font.Gotham
+	BBD.Text = "Distance"
+	BBD.TextColor3 = Color3.fromRGB(255, 255, 255)
+	BBD.TextSize = 16.000
+	BBH.Name = "BBH"
+	BBH.Parent = ESPSection
+	BBH.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	BBH.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	BBH.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	BBH.Size = UDim2.new(0, 164, 0, 29)
+	BBH.Font = Enum.Font.Gotham
+	BBH.Text = "Health"
+	BBH.TextColor3 = Color3.fromRGB(255, 255, 255)
+	BBH.TextSize = 16.000
+	BTC.Name = "BBE"
+	BTC.Parent = ESPSection
+	BTC.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	BTC.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	BTC.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	BTC.Size = UDim2.new(0, 164, 0, 29)
+	BTC.Font = Enum.Font.Gotham
+	BTC.Text = "Team Check"
+	BTC.TextColor3 = Color3.fromRGB(255, 255, 255)
+	BTC.TextSize = 16.000
+	
+	TextLabel_5.Parent = ESPSection
+	TextLabel_5.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_5.BackgroundTransparency = 1.000
+	TextLabel_5.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel_5.BorderSizePixel = 0
+	TextLabel_5.Position = UDim2.new(0.0700000003, 0, 0.20869565, 0)
+	TextLabel_5.Size = UDim2.new(0, 100, 0, 17)
+	TextLabel_5.Font = Enum.Font.Gotham
+	TextLabel_5.Text = "Health Type"
+	TextLabel_5.TextColor3 = Color3.fromRGB(17, 223, 255)
+	TextLabel_5.TextSize = 21.000
+	-- Made By Mick Gordon
+	BBHT.Name = "BBHT"
+	BBHT.Parent = ESPSection
+	BBHT.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	BBHT.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	BBHT.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	BBHT.Size = UDim2.new(0, 164, 0, 29)
+	BBHT.Font = Enum.Font.Gotham
+	BBHT.Text = "BAR, text, both"
+	BBHT.TextColor3 = Color3.fromRGB(255, 255, 255)
+	BBHT.TextSize = 16.000
+	
+	TextLabel_6.Parent = ESPSection
+	TextLabel_6.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_6.BackgroundTransparency = 1.000
+	TextLabel_6.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel_6.BorderSizePixel = 0-- Made By Mick Gordon
+	TextLabel_6.Position = UDim2.new(0.0700000003, 0, 0.20869565, 0)
+	TextLabel_6.Size = UDim2.new(0, 100, 0, 17)
+	TextLabel_6.Font = Enum.Font.Gotham
+	TextLabel_6.Text = "Box Color"
+	TextLabel_6.TextColor3 = Color3.fromRGB(17, 223, 255)
+	TextLabel_6.TextSize = 21.000
+	
+	TextLabel_7.Parent = ESPSection
+	TextLabel_7.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_7.BackgroundTransparency = 1.000
+	TextLabel_7.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel_7.BorderSizePixel = 0
+	TextLabel_7.Position = UDim2.new(0.0700000003, 0, 0.20869565, 0)
+	TextLabel_7.Size = UDim2.new(0, 100, 0, 17)
+	TextLabel_7.Font = Enum.Font.Gotham
+	TextLabel_7.Text = "R,G,B"
+	TextLabel_7.TextColor3 = Color3.fromRGB(17, 223, 255)
+	TextLabel_7.TextSize = 21.000
+	
+	Frame_3.Parent = ESPSection
+	Frame_3.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Frame_3.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Frame_3.BorderSizePixel = 0
+	Frame_3.Position = UDim2.new(0.0909090936, 0, 0.600000739, 0)
+	Frame_3.Size = UDim2.new(0, 100, 0, 30)
+	
+	UIListLayout_3.Parent = Frame_3
+	UIListLayout_3.FillDirection = Enum.FillDirection.Horizontal
+	UIListLayout_3.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	UIListLayout_3.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout_3.VerticalAlignment = Enum.VerticalAlignment.Center
+	UIListLayout_3.Padding = UDim.new(0, 5)
+	
+	Box_R.Name = "Box_R"
+	Box_R.Parent = Frame_3
+	Box_R.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Box_R.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Box_R.Size = UDim2.new(0, 75, 0, 24)
+	Box_R.ClearTextOnFocus = false
+	Box_R.Font = Enum.Font.Gotham
+	Box_R.PlaceholderText = "255 - 0"
+	Box_R.Text = "75"
+	Box_R.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Box_R.TextSize = 14.000
+	
+	Box_G.Name = "Box_G"
+	Box_G.Parent = Frame_3
+	Box_G.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Box_G.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Box_G.Size = UDim2.new(0, 75, 0, 24)
+	Box_G.ClearTextOnFocus = false
+	Box_G.Font = Enum.Font.Gotham
+	Box_G.PlaceholderText = "255 - 0"
+	Box_G.Text = "0" 
+	Box_G.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Box_G.TextSize = 14.000
+	-- Made By Mick Gordon
+	Box_B.Name = "Box_B"
+	Box_B.Parent = Frame_3
+	Box_B.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Box_B.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Box_B.Size = UDim2.new(0, 75, 0, 24)
+	Box_B.ClearTextOnFocus = false
+	Box_B.Font = Enum.Font.Gotham
+	Box_B.PlaceholderText = "255 - 0"
+	Box_B.Text = "10"
+	Box_B.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Box_B.TextSize = 14.000
+	
+	TextLabel_8.Parent = DeleteMobF
+	TextLabel_8.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_8.BackgroundTransparency = 1.000
+	TextLabel_8.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel_8.BorderSizePixel = 0
+	TextLabel_8.Position = UDim2.new(0.215919182, 0, 0.100655407, 0)
+	TextLabel_8.Size = UDim2.new(0, 100, 0, 17)
+	TextLabel_8.Font = Enum.Font.Gotham
+	TextLabel_8.Text = "ESP"
+	TextLabel_8.TextColor3 = Color3.fromRGB(17, 223, 255)
+	TextLabel_8.TextSize = 18.000
+	TextLabel_8.TextXAlignment = Enum.TextXAlignment.Left
+	
+	ESPSection_2.Name = "ESPSection"
+	ESPSection_2.Parent = DeleteMobF
+	ESPSection_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	ESPSection_2.BackgroundTransparency = 1.000
+	ESPSection_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	ESPSection_2.BorderSizePixel = 0
+	ESPSection_2.Position = UDim2.new(0.475963563, 0, 0.160724282, 0)
+	ESPSection_2.Size = UDim2.new(0, 100, 0, 334)
+	
+	UIListLayout_4.Parent = ESPSection_2
+	UIListLayout_4.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	UIListLayout_4.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout_4.Padding = UDim.new(0, 5)
+	
+	OE.Name = "OE"
+	OE.Parent = ESPSection_2
+	OE.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	OE.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	OE.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	OE.Size = UDim2.new(0, 164, 0, 29)
+	OE.Font = Enum.Font.Gotham
+	OE.Text = "Outlines"
+	OE.TextColor3 = Color3.fromRGB(255, 255, 255)
+	OE.TextSize = 16.000
+	
+	OTC.Name = "OTC"
+	OTC.Parent = ESPSection_2
+	OTC.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	OTC.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	OTC.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	OTC.Size = UDim2.new(0, 164, 0, 29)
+	OTC.Font = Enum.Font.Gotham
+	OTC.Text = "Team Check"
+	OTC.TextColor3 = Color3.fromRGB(255, 255, 255)
+	OTC.TextSize = 16.000
+	
+	Frame_4.Parent = ESPSection_2
+	Frame_4.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Frame_4.BackgroundTransparency = 0.700
+	Frame_4.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Frame_4.BorderSizePixel = 0
+	Frame_4.Position = UDim2.new(-0.550000012, 0, 0.739130437, 0)
+	Frame_4.Size = UDim2.new(0, 230, 0, 50)
+	
+	Slider1.Name = "Slider1"
+	Slider1.Parent = Frame_4
+	Slider1.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Slider1.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Slider1.BorderSizePixel = 0
+	Slider1.Position = UDim2.new(0.0629399866, 0, 0.45120728, 0)
+	Slider1.Size = UDim2.new(0, 200, 0, 15)
+	
+	UICorner_5.Parent = Slider1
+	
+	Fill3.Name = "Fill3"
+	Fill3.Parent = Slider1
+	Fill3.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+	Fill3.BackgroundTransparency = 0.200
+	Fill3.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Fill3.BorderSizePixel = 0
+	Fill3.Size = UDim2.new(0, 100, 0, 15)
+	-- Made By Mick Gordon
+	UICorner_6.Parent = Fill3
+	
+	UIGradient_3.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(17, 223, 255)), ColorSequenceKeypoint.new(0.29, Color3.fromRGB(17, 223, 255)), ColorSequenceKeypoint.new(0.43, Color3.fromRGB(18, 218, 249)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(52, 52, 52))}
+	UIGradient_3.Parent = Fill3
+	
+	TriggerOutTans.Name = "TriggerOutTans"
+	TriggerOutTans.Parent = Slider1
+	TriggerOutTans.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TriggerOutTans.BackgroundTransparency = 1.000
+	TriggerOutTans.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TriggerOutTans.BorderSizePixel = 0
+	TriggerOutTans.Size = UDim2.new(1, 0, 1, 0)
+	TriggerOutTans.Font = Enum.Font.SourceSans
+	TriggerOutTans.Text = ""
+	TriggerOutTans.TextColor3 = Color3.fromRGB(0, 0, 0)
+	TriggerOutTans.TextSize = 14.000
+	
+	Numbers_3.Name = "Numbers"
+	Numbers_3.Parent = Frame_4
+	Numbers_3.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers_3.BackgroundTransparency = 1.000
+	Numbers_3.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers_3.BorderSizePixel = 0
+	Numbers_3.Position = UDim2.new(0.79130435, 0, 0, 0)
+	Numbers_3.Size = UDim2.new(0, 50, 0, 23)
+	Numbers_3.Font = Enum.Font.Gotham
+	Numbers_3.Text = "50"
+	Numbers_3.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers_3.TextSize = 14.000
+	
+	TextLabel_9.Parent = Frame_4
+	TextLabel_9.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_9.BackgroundTransparency = 1.000
+	TextLabel_9.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_9.BorderSizePixel = 0
+	TextLabel_9.Position = UDim2.new(0.0608695634, 0, 0, 0)
+	TextLabel_9.Size = UDim2.new(0, 125, 0, 23)
+	TextLabel_9.Font = Enum.Font.Gotham
+	TextLabel_9.Text = "Outlines Transparency"
+	TextLabel_9.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_9.TextSize = 14.000
+	
+	Frame_5.Parent = ESPSection_2
+	Frame_5.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Frame_5.BackgroundTransparency = 0.700
+	Frame_5.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Frame_5.BorderSizePixel = 0
+	Frame_5.Position = UDim2.new(-0.550000012, 0, 0.739130437, 0)
+	Frame_5.Size = UDim2.new(0, 230, 0, 50)
+	
+	Slider2.Name = "Slider2"
+	Slider2.Parent = Frame_5
+	Slider2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Slider2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Slider2.BorderSizePixel = 0
+	Slider2.Position = UDim2.new(0.0629399866, 0, 0.45120728, 0)
+	Slider2.Size = UDim2.new(0, 200, 0, 15)
+	
+	UICorner_7.Parent = Slider2
+	
+	Fill4.Name = "Fill4"
+	Fill4.Parent = Slider2
+	Fill4.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+	Fill4.BackgroundTransparency = 0.200
+	Fill4.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Fill4.BorderSizePixel = 0
+	Fill4.Size = UDim2.new(0, 100, 0, 15)
+	-- Made By Mick Gordon
+	UICorner_8.Parent = Fill4
+	
+	UIGradient_4.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(17, 223, 255)), ColorSequenceKeypoint.new(0.29, Color3.fromRGB(17, 223, 255)), ColorSequenceKeypoint.new(0.43, Color3.fromRGB(18, 218, 249)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(52, 52, 52))}
+	UIGradient_4.Parent = Fill4
+	
+	TriggerFill.Name = "TriggerFill"
+	TriggerFill.Parent = Slider2
+	TriggerFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TriggerFill.BackgroundTransparency = 1.000
+	TriggerFill.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TriggerFill.BorderSizePixel = 0
+	TriggerFill.Size = UDim2.new(1, 0, 1, 0)
+	TriggerFill.Font = Enum.Font.SourceSans
+	TriggerFill.Text = ""
+	TriggerFill.TextColor3 = Color3.fromRGB(0, 0, 0)
+	TriggerFill.TextSize = 14.000
+	
+	Numbers_4.Name = "Numbers"
+	Numbers_4.Parent = Frame_5
+	Numbers_4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers_4.BackgroundTransparency = 1.000
+	Numbers_4.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers_4.BorderSizePixel = 0
+	Numbers_4.Position = UDim2.new(0.79130435, 0, 0, 0)
+	Numbers_4.Size = UDim2.new(0, 50, 0, 23)
+	Numbers_4.Font = Enum.Font.Gotham
+	Numbers_4.Text = "50"
+	Numbers_4.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Numbers_4.TextSize = 14.000
+	
+	TextLabel_10.Parent = Frame_5
+	TextLabel_10.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_10.BackgroundTransparency = 1.000
+	TextLabel_10.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_10.BorderSizePixel = 0
+	TextLabel_10.Position = UDim2.new(0.104347825, 0, 0, 0)
+	TextLabel_10.Size = UDim2.new(0, 133, 0, 23)
+	TextLabel_10.Font = Enum.Font.Gotham
+	TextLabel_10.Text = "Fill Outlines Transparency"
+	TextLabel_10.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_10.TextSize = 14.000
+	-- Made By Mick Gordon
+	TextLabel_11.Parent = ESPSection_2
+	TextLabel_11.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_11.BackgroundTransparency = 1.000
+	TextLabel_11.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel_11.BorderSizePixel = 0
+	TextLabel_11.Position = UDim2.new(0.0700000003, 0, 0.20869565, 0)
+	TextLabel_11.Size = UDim2.new(0, 100, 0, 17)
+	TextLabel_11.Font = Enum.Font.Gotham
+	TextLabel_11.Text = "Outlines"
+	TextLabel_11.TextColor3 = Color3.fromRGB(17, 223, 255)
+	TextLabel_11.TextSize = 21.000
+	
+	Frame_6.Parent = ESPSection_2
+	Frame_6.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Frame_6.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Frame_6.BorderSizePixel = 0
+	Frame_6.Position = UDim2.new(0.0909090936, 0, 0.600000739, 0)
+	Frame_6.Size = UDim2.new(0, 100, 0, 30)
+	
+	UIListLayout_5.Parent = Frame_6
+	UIListLayout_5.FillDirection = Enum.FillDirection.Horizontal
+	UIListLayout_5.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	UIListLayout_5.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout_5.VerticalAlignment = Enum.VerticalAlignment.Center
+	UIListLayout_5.Padding = UDim.new(0, 5)
+	
+	Outlines_R.Name = "Outlines_R"
+	Outlines_R.Parent = Frame_6
+	Outlines_R.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Outlines_R.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Outlines_R.Size = UDim2.new(0, 75, 0, 24)
+	Outlines_R.ClearTextOnFocus = false
+	Outlines_R.Font = Enum.Font.Gotham
+	Outlines_R.PlaceholderText = "255 - 0"
+	Outlines_R.Text = "255"
+	Outlines_R.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Outlines_R.TextSize = 14.000
+	
+	Outlines_G.Name = "Outlines_G"
+	Outlines_G.Parent = Frame_6
+	Outlines_G.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Outlines_G.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Outlines_G.Size = UDim2.new(0, 75, 0, 24)
+	Outlines_G.ClearTextOnFocus = false
+	Outlines_G.Font = Enum.Font.Gotham
+	Outlines_G.PlaceholderText = "255 - 0"
+	Outlines_G.Text = "255"
+	Outlines_G.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Outlines_G.TextSize = 14.000
+	
+	Outlines_B.Name = "Outlines_B"
+	Outlines_B.Parent = Frame_6
+	Outlines_B.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Outlines_B.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Outlines_B.Size = UDim2.new(0, 75, 0, 24)
+	Outlines_B.ClearTextOnFocus = false
+	Outlines_B.Font = Enum.Font.Gotham
+	Outlines_B.PlaceholderText = "255 - 0"
+	Outlines_B.Text = "255"
+	Outlines_B.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Outlines_B.TextSize = 14.000
+	-- Made By Mick Gordon
+	TextLabel_12.Parent = ESPSection_2
+	TextLabel_12.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_12.BackgroundTransparency = 1.000
+	TextLabel_12.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel_12.BorderSizePixel = 0
+	TextLabel_12.Position = UDim2.new(0.0700000003, 0, 0.20869565, 0)
+	TextLabel_12.Size = UDim2.new(0, 100, 0, 17)
+	TextLabel_12.Font = Enum.Font.Gotham
+	TextLabel_12.Text = "Fill Outlines"
+	TextLabel_12.TextColor3 = Color3.fromRGB(17, 223, 255)
+	TextLabel_12.TextSize = 21.000
+	
+	Frame_7.Parent = ESPSection_2
+	Frame_7.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Frame_7.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Frame_7.BorderSizePixel = 0
+	Frame_7.Position = UDim2.new(0.0909090936, 0, 0.600000739, 0)
+	Frame_7.Size = UDim2.new(0, 100, 0, 30)
+	
+	UIListLayout_6.Parent = Frame_7
+	UIListLayout_6.FillDirection = Enum.FillDirection.Horizontal
+	UIListLayout_6.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	UIListLayout_6.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout_6.VerticalAlignment = Enum.VerticalAlignment.Center
+	UIListLayout_6.Padding = UDim.new(0, 5)
+	
+	FillOutlines_R.Name = "FillOutlines_R"
+	FillOutlines_R.Parent = Frame_7
+	FillOutlines_R.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	FillOutlines_R.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	FillOutlines_R.Size = UDim2.new(0, 75, 0, 24)
+	FillOutlines_R.ClearTextOnFocus = false
+	FillOutlines_R.Font = Enum.Font.Gotham
+	FillOutlines_R.PlaceholderText = "255 - 0"
+	FillOutlines_R.Text = "255"
+	FillOutlines_R.TextColor3 = Color3.fromRGB(255, 255, 255)
+	FillOutlines_R.TextSize = 14.000
+	
+	FillOutlines_G.Name = "FillOutlines_G"
+	FillOutlines_G.Parent = Frame_7
+	FillOutlines_G.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	FillOutlines_G.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	FillOutlines_G.Size = UDim2.new(0, 75, 0, 24)
+	FillOutlines_G.ClearTextOnFocus = false
+	FillOutlines_G.Font = Enum.Font.Gotham
+	FillOutlines_G.PlaceholderText = "255 - 0"
+	FillOutlines_G.Text = "255"
+	FillOutlines_G.TextColor3 = Color3.fromRGB(255, 255, 255)
+	FillOutlines_G.TextSize = 14.000
+	
+	FillOutlines_B.Name = "FillOutlines_B"
+	FillOutlines_B.Parent = Frame_7
+	FillOutlines_B.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	FillOutlines_B.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	FillOutlines_B.Size = UDim2.new(0, 75, 0, 24)
+	FillOutlines_B.ClearTextOnFocus = false
+	FillOutlines_B.Font = Enum.Font.Gotham
+	FillOutlines_B.PlaceholderText = "255 - 0"
+	FillOutlines_B.Text = "255"
+	FillOutlines_B.TextColor3 = Color3.fromRGB(255, 255, 255)
+	FillOutlines_B.TextSize = 14.000
+	-- Made By Mick Gordon
+	Tracerssection.Name = "Tracers section"
+	Tracerssection.Parent = DeleteMobF
+	Tracerssection.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Tracerssection.BackgroundTransparency = 1.000
+	Tracerssection.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Tracerssection.BorderSizePixel = 0
+	Tracerssection.Position = UDim2.new(0.682779849, 0, 0.158000082, 0)
+	Tracerssection.Size = UDim2.new(0, 100, 0, 334)
+	
+	UIListLayout_7.Parent = Tracerssection
+	UIListLayout_7.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	UIListLayout_7.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout_7.Padding = UDim.new(0, 5)
+	
+	TE.Name = "TE"
+	TE.Parent = Tracerssection
+	TE.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	TE.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	TE.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	TE.Size = UDim2.new(0, 164, 0, 29)
+	TE.Font = Enum.Font.Gotham
+	TE.Text = "Tracers"
+	TE.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TE.TextSize = 16.000
+	
+	TTC.Name = "TTC"
+	TTC.Parent = Tracerssection
+	TTC.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	TTC.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	TTC.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	TTC.Size = UDim2.new(0, 164, 0, 29)
+	TTC.Font = Enum.Font.Gotham
+	TTC.Text = "Team Check"
+	TTC.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TTC.TextSize = 16.000
+	
+	TTCOlor.Name = "TTCOlor"
+	TTCOlor.Parent = Tracerssection
+	TTCOlor.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	TTCOlor.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	TTCOlor.Position = UDim2.new(0.234439835, 0, 0.139479905, 0)
+	TTCOlor.Size = UDim2.new(0, 164, 0, 29)
+	TTCOlor.Font = Enum.Font.Gotham
+	TTCOlor.Text = "Team Color"
+	TTCOlor.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TTCOlor.TextSize = 16.000
+	
+	Frame_8.Parent = Tracerssection
+	Frame_8.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Frame_8.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Frame_8.BorderSizePixel = 0
+	Frame_8.Position = UDim2.new(0.0909090936, 0, 0.600000739, 0)
+	Frame_8.Size = UDim2.new(0, 100, 0, 40)
+	
+	UIListLayout_8.Parent = Frame_8
+	UIListLayout_8.FillDirection = Enum.FillDirection.Horizontal
+	UIListLayout_8.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	UIListLayout_8.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout_8.VerticalAlignment = Enum.VerticalAlignment.Center
+	UIListLayout_8.Padding = UDim.new(0, 5)
+	
+	Tracers_R.Name = "Tracers_R"
+	Tracers_R.Parent = Frame_8
+	Tracers_R.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Tracers_R.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Tracers_R.Size = UDim2.new(0, 75, 0, 24)
+	Tracers_R.ClearTextOnFocus = false
+	Tracers_R.Font = Enum.Font.Gotham
+	Tracers_R.PlaceholderText = "255 - 0"
+	Tracers_R.Text = "75" 
+	Tracers_R.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Tracers_R.TextSize = 14.000
+	
+	Tracers_G.Name = "Tracers_G"
+	Tracers_G.Parent = Frame_8
+	Tracers_G.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Tracers_G.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Tracers_G.Size = UDim2.new(0, 75, 0, 24)
+	Tracers_G.ClearTextOnFocus = false
+	Tracers_G.Font = Enum.Font.Gotham
+	Tracers_G.PlaceholderText = "255 - 0"
+	Tracers_G.Text = "0"
+	Tracers_G.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Tracers_G.TextSize = 14.000
+	
+	Tracers_B.Name = "Tracers_B"
+	Tracers_B.Parent = Frame_8
+	Tracers_B.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+	Tracers_B.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Tracers_B.Size = UDim2.new(0, 75, 0, 24)
+	Tracers_B.ClearTextOnFocus = false
+	Tracers_B.Font = Enum.Font.Gotham
+	Tracers_B.PlaceholderText = "255 - 0"
+	Tracers_B.Text = "10"
+	Tracers_B.TextColor3 = Color3.fromRGB(255, 255, 255)
+	Tracers_B.TextSize = 14.000
+	-- Made By Mick Gordon
+	Unknown.Name = "Unknown"
+	Unknown.Parent = DeleteMobF
+	Unknown.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Unknown.BackgroundTransparency = 1.000
+	Unknown.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	Unknown.BorderSizePixel = 0
+	Unknown.Position = UDim2.new(0.882285178, 0, 0.158000082, 0)
+	Unknown.Size = UDim2.new(0, 100, 0, 334)
+	
+	UIListLayout_9.Parent = Unknown
+	UIListLayout_9.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	UIListLayout_9.SortOrder = Enum.SortOrder.LayoutOrder
+	UIListLayout_9.Padding = UDim.new(0, 5)
+	
+	TextLabel_13.Parent = Unknown
+	TextLabel_13.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_13.BackgroundTransparency = 1.000
+	TextLabel_13.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel_13.BorderSizePixel = 0
+	TextLabel_13.Position = UDim2.new(0.0700000003, 0, 0.20869565, 0)
+	TextLabel_13.Size = UDim2.new(0, 100, 0, 17)
+	TextLabel_13.Font = Enum.Font.Gotham
+	TextLabel_13.Text = "More Options"
+	TextLabel_13.TextColor3 = Color3.fromRGB(17, 223, 255)
+	TextLabel_13.TextSize = 21.000
+	
+	TextLabel_14.Parent = Unknown
+	TextLabel_14.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel_14.BackgroundTransparency = 1.000
+	TextLabel_14.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	TextLabel_14.BorderSizePixel = 0
+	TextLabel_14.Position = UDim2.new(0.215919182, 0, 0.100655407, 0)
+	TextLabel_14.Size = UDim2.new(0, 100, 0, 17)
+	TextLabel_14.Font = Enum.Font.Gotham
+	TextLabel_14.Text = "Later"
+	TextLabel_14.TextColor3 = Color3.fromRGB(17, 223, 255)
+	TextLabel_14.TextSize = 18.000
+	
+	Open.Name = "Open"
+	Open.Parent = CheatEngineDeleteMob
+	Open.BackgroundColor3 = Color3.fromRGB(51, 51, 51)
+	Open.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	Open.Position = UDim2.new(0.5, 0, 0.0199999996, 0)
+	Open.Size = UDim2.new(0, 150, 0, 50)
+	Open.ZIndex = 10
+	Open.Draggable = true
+	Open.Active = true
+	
+	TextButton.Parent = Open
+	TextButton.BackgroundColor3 = Color3.fromRGB(49, 49, 49)
+	TextButton.BorderColor3 = Color3.fromRGB(255, 255, 255)
+	TextButton.Position = UDim2.new(0, 0, 0.319999933, 0)
+	TextButton.Size = UDim2.new(0, 150, 0, 34)
+	TextButton.Font = Enum.Font.Gotham
+	TextButton.Text = "open / Close"
+	TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextButton.TextSize = 14.000
+	-- Made By Mick Gordon
+	ABE.MouseButton1Click:Connect(function()
+		if ABE.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			ABE.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.Aimbot.Enabled = true
+		else
+			ABE.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.Aimbot.Enabled = false	
+		end
+	end)
+	
+	ABSF.MouseButton1Click:Connect(function()
+		if ABSF.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			ABSF.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.Aimbot.ShowFov = true
+		else
+			ABSF.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.Aimbot.ShowFov = false	
+		end
+	end)
+	
+	ABTC.MouseButton1Click:Connect(function()
+		if ABTC.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			ABTC.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.Aimbot.TeamCheck = true
+		else
+			ABTC.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.Aimbot.TeamCheck = false	
+		end
+	end)
+	
+	ABWC.MouseButton1Click:Connect(function()
+		if ABWC.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			ABWC.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.Aimbot.WallCheck = true
+		else
+			ABWC.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.Aimbot.WallCheck = false	
+		end
+	end)
+	
+	Allways_Show.MouseButton1Click:Connect(function()
+		if DeleteMob.Aimbot.AimPart == "Head" then
+			Allways_Show.Text = "head, TORSO"
+			DeleteMob.Aimbot.AimPart = "HumanoidRootPart"
+		else
+			Allways_Show.Text = "HEAD, torso"
+			DeleteMob.Aimbot.AimPart = "Head"
+		end
+	end)
+	
+	-- Box ESP
+	
+	BBD.MouseButton1Click:Connect(function()
+		if BBD.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			BBD.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.ESP.Box.Distance = true
+		else
+			BBD.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.ESP.Box.Distance = false	
+		end
+	end)
+	
+	BBE.MouseButton1Click:Connect(function()
+		if BBE.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			BBE.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.ESP.Box.Box = true
+		else
+			BBE.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.ESP.Box.Box = false	
+		end
+	end)
+	
+	BBH.MouseButton1Click:Connect(function()
+		if BBH.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			BBH.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.ESP.Box.Health = true
+		else
+			BBH.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.ESP.Box.Health = false	
+		end
+	end)
+	
+	BBHT.MouseButton1Click:Connect(function()
+		if DeleteMob.ESP.Box.HealthType == "Bar" then
+			BBHT.Text = "bar, TEXT, both"
+			DeleteMob.ESP.Box.HealthType = "Text"
+		elseif DeleteMob.ESP.Box.HealthType == "Text" then
+			BBHT.Text = "bar, text, BOTH"
+			DeleteMob.ESP.Box.HealthType = "Both"
+		elseif DeleteMob.ESP.Box.HealthType == "Both" then
+			BBHT.Text = "BAR, text, both"
+			DeleteMob.ESP.Box.HealthType = "Bar"
+		end
+	end)
+	
+	BBN.MouseButton1Click:Connect(function()
+		if BBN.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			BBN.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.ESP.Box.Name = true
+		else
+			BBN.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.ESP.Box.Name = false	
+		end
+	end)
+	
+	BTC.MouseButton1Click:Connect(function()
+		if BTC.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			BTC.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.ESP.Box.TeamCheck = true
+		else
+			BTC.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.ESP.Box.TeamCheck = false	
+		end
+	end)
+	-- Outlines
+	
+	OE.MouseButton1Click:Connect(function()
+		if OE.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			OE.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.ESP.OutLines.Enabled = true
+		else
+			OE.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.ESP.OutLines.Enabled = false	
+		end
+	end)
+	
+	OTC.MouseButton1Click:Connect(function()
+		if OTC.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			OTC.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.ESP.OutLines.TeamCheck = true
+		else
+			OTC.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.ESP.OutLines.TeamCheck = false	
+		end
+	end)
+	
+	-- Tracers
+	
+	TE.MouseButton1Click:Connect(function()
+		if TE.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			TE.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.ESP.Tracers.Enabled = true
+		else
+			TE.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.ESP.Tracers.Enabled = false	
+		end
+	end)
+	
+	TTC.MouseButton1Click:Connect(function()
+		if TTC.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			TTC.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.ESP.Tracers.TeamCheck = true
+		else
+			TTC.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.ESP.Tracers.TeamCheck = false	
+		end
+	end)
+	
+	TTCOlor.MouseButton1Click:Connect(function()
+		if TTCOlor.BackgroundColor3 == Color3.fromRGB(52, 52, 52) then
+			TTCOlor.BackgroundColor3 = Color3.fromRGB(2, 54, 8)
+			DeleteMob.ESP.Tracers.TeamColor = true
+		else
+			TTCOlor.BackgroundColor3 = Color3.fromRGB(52, 52, 52)
+			DeleteMob.ESP.Tracers.TeamColor = false	
+		end
+	end)
+	
+	-- UI Toggle
+	
+	TextButton.MouseButton1Click:Connect(function()
+		if DeleteMobF.Visible == true then
+			DeleteMobF.Visible = false
+		else
+			DeleteMobF.Visible = true
+		end
+	end)
+	
+	
+	-- Scripts:
+	
+	local function LDTZWMY_fake_script() -- Slider3.Script1 
+		local Mouse = game.Players.LocalPlayer:GetMouse()
+		local Slider = Slider3
+		local Fill = Fill1
+		local Trigger = TriggerFov
+		local TextNumbers = Numbers
+	
+		local maxvalue = 7 or 700/700
+		local startingvalue = 0 or 0/100
+	
+		Fill.Size = UDim2.fromScale(DeleteMob.Aimbot.Fov,1)
+		TextNumbers.Text = tostring(math.round(DeleteMob.Aimbot.Fov*100))
+	
+		local TweenService = game:GetService("TweenService")
+		local TweenStyle =  TweenInfo.new(0.25, Enum.EasingStyle.Exponential)
+	
+		local function UpdateSlider()
+			local OutPut = math.clamp(((Vector2.new(Mouse.X,Mouse.Y)-Slider.AbsolutePosition)/Slider.AbsoluteSize).X,0,1)
+	
+			if DeleteMob.Aimbot.Fov ~= OutPut then
+				TweenService:Create(Fill,TweenStyle,{Size = UDim2.fromScale(OutPut,1)}):Play()
+			end
+	
+			DeleteMob.Aimbot.Fov = (startingvalue +(OutPut*(maxvalue-startingvalue)))*100
+			TextNumbers.Text = tostring(math.round(DeleteMob.Aimbot.Fov*100))
+		end
+	
+		Fill:GetPropertyChangedSignal("Size"):Connect(function()
+			TextNumbers.Text = tostring(math.round(DeleteMob.Aimbot.Fov*100))
+		end)
+	
+		local SliderActive = false
+	
+		local function ActivateSlider()
+			SliderActive = true
+			while SliderActive do
+				UpdateSlider()
+				task.wait()
+			end
+		end
+	
+		Trigger.MouseButton1Down:Connect(ActivateSlider)
+	
+		game:GetService("UserInputService").InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				SliderActive = false
+			end
+		end)
+	end
+	coroutine.wrap(LDTZWMY_fake_script)()
+	
+	local function YEOE_fake_script() -- Slider4.Script2 
+		local Mouse = game.Players.LocalPlayer:GetMouse()
+		local Slider = Slider4
+		local Fill = Fill2
+		local Trigger = TriggerSmoothing
+		local TextNumbers = Numbers_2
+	
+		local maxvalue = 3 or 30/30
+		local startingvalue = 0 or 0/100
+	
+		Fill.Size = UDim2.fromScale(DeleteMob.Aimbot.Smoothing,1)
+		TextNumbers.Text = tostring(math.round(DeleteMob.Aimbot.Smoothing*100))
+	
+		local TweenService = game:GetService("TweenService")
+		local TweenStyle =  TweenInfo.new(0.25, Enum.EasingStyle.Exponential)
+	
+		local function UpdateSlider()
+			local OutPut = math.clamp(((Vector2.new(Mouse.X,Mouse.Y)-Slider.AbsolutePosition)/Slider.AbsoluteSize).X,0,1)
+	
+			if DeleteMob.Aimbot.Smoothing ~= OutPut then
+				TweenService:Create(Fill,TweenStyle,{Size = UDim2.fromScale(OutPut,1)}):Play()
+			end
+	
+			DeleteMob.Aimbot.Smoothing = startingvalue +(OutPut*(maxvalue-startingvalue))
+			TextNumbers.Text = tostring(math.round(DeleteMob.Aimbot.Smoothing*100))
+		end
+	
+		Fill:GetPropertyChangedSignal("Size"):Connect(function()
+			TextNumbers.Text = tostring(math.round(DeleteMob.Aimbot.Smoothing*100))
+		end)
+	
+		local SliderActive = false
+	
+		local function ActivateSlider()
+			SliderActive = true
+			while SliderActive do
+				UpdateSlider()
+				task.wait()
+			end
+		end
+	
+		Trigger.MouseButton1Down:Connect(ActivateSlider)
+	
+		game:GetService("UserInputService").InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				SliderActive = false
+			end
+		end)
+	
+	end
+	coroutine.wrap(YEOE_fake_script)()
+	local function GOUU_fake_script() -- Slider1.Script3 
+		local Mouse = game.Players.LocalPlayer:GetMouse()
+		local Slider = Slider1
+		local Fill = Fill3
+		local Trigger = TriggerOutTans
+		local TextNumbers = Numbers_3
+	
+		local maxvalue = 1 or 100/100
+		local startingvalue = 0 or 0/100
+	
+		Fill.Size = UDim2.fromScale(DeleteMob.ESP.OutLines.OutlineTrancparency,1)
+		TextNumbers.Text = tostring(math.round(DeleteMob.ESP.OutLines.OutlineTrancparency*100))
+	
+		local TweenService = game:GetService("TweenService")
+		local TweenStyle =  TweenInfo.new(0.25, Enum.EasingStyle.Exponential)
+	
+		local function UpdateSlider()
+			local OutPut = math.clamp(((Vector2.new(Mouse.X,Mouse.Y)-Slider.AbsolutePosition)/Slider.AbsoluteSize).X,0,1)
+	
+			if DeleteMob.ESP.OutLines.OutlineTrancparency ~= OutPut then
+				TweenService:Create(Fill,TweenStyle,{Size = UDim2.fromScale(OutPut,1)}):Play()
+			end
+	
+			DeleteMob.ESP.OutLines.OutlineTrancparency = startingvalue +(OutPut*(maxvalue-startingvalue))
+			TextNumbers.Text = tostring(math.round(DeleteMob.ESP.OutLines.OutlineTrancparency*100))
+		end
+	
+		Fill:GetPropertyChangedSignal("Size"):Connect(function()
+			TextNumbers.Text = tostring(math.round(DeleteMob.ESP.OutLines.OutlineTrancparency*100))
+		end)
+	
+		local SliderActive = false
+	
+		local function ActivateSlider()
+			SliderActive = true
+			while SliderActive do
+				UpdateSlider()
+				task.wait()
+			end
+		end
+	
+		Trigger.MouseButton1Down:Connect(ActivateSlider)
+	
+		game:GetService("UserInputService").InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				SliderActive = false
+			end
+		end)
+	
+	end
+	coroutine.wrap(GOUU_fake_script)()
+	local function MMUKLB_fake_script() -- Slider2.Script4 
+		local Mouse = game.Players.LocalPlayer:GetMouse()
+		local Slider = Slider2
+		local Fill = Fill4
+		local Trigger = TriggerFill
+		local TextNumbers = Numbers_4
+	
+		local maxvalue = 1 or 100/100
+		local startingvalue = 0 or 0/100
+	
+		Fill.Size = UDim2.fromScale(DeleteMob.ESP.OutLines.FillTrancparenct,1)
+		TextNumbers.Text = tostring(math.round(DeleteMob.ESP.OutLines.FillTrancparenct*100))
+	
+		local TweenService = game:GetService("TweenService")
+		local TweenStyle =  TweenInfo.new(0.25, Enum.EasingStyle.Exponential)
+	
+		local function UpdateSlider()
+			local OutPut = math.clamp(((Vector2.new(Mouse.X,Mouse.Y)-Slider.AbsolutePosition)/Slider.AbsoluteSize).X,0,1)
+	
+			if DeleteMob.ESP.OutLines.FillTrancparenct ~= OutPut then
+				TweenService:Create(Fill,TweenStyle,{Size = UDim2.fromScale(OutPut,1)}):Play()
+			end
+	
+			DeleteMob.ESP.OutLines.FillTrancparenct = startingvalue +(OutPut*(maxvalue-startingvalue))
+			TextNumbers.Text = tostring(math.round(DeleteMob.ESP.OutLines.FillTrancparenct*100))
+		end
+	
+		Fill:GetPropertyChangedSignal("Size"):Connect(function()
+			TextNumbers.Text = tostring(math.round(DeleteMob.ESP.OutLines.FillTrancparenct*100))
+		end)
+	
+		local SliderActive = false
+	
+		local function ActivateSlider()
+			SliderActive = true
+			while SliderActive do
+				UpdateSlider()
+				task.wait()
+			end
+		end
+	
+		Trigger.MouseButton1Down:Connect(ActivateSlider)
+	
+		game:GetService("UserInputService").InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				SliderActive = false
+			end
+		end)
+	
+	end
+	coroutine.wrap(MMUKLB_fake_script)()
+	
+	
+	game:GetService('RunService').RenderStepped:connect(function()
+	
+		-- Aimbot Check
+		if DeleteMob.Aimbot.Enabled == true then 
+			if UIS:IsMouseButtonPressed(Enum.UserInputType[DeleteMob.Aimbot.Keybind]) then
+				local _pos = CameraGetClosestToMouse(DeleteMob.Aimbot.Fov)
+				if _pos then
+					aimAt(_pos, DeleteMob.Aimbot.Smoothing)
+				end
+			end
+		end 
+	
+		-- Fov
+		local acc = DeleteMob.Aimbot.Smoothing / 2	
+		local posd = UIS:GetMouseLocation() 
+		FOVFFrame.Position = UDim2.new(0, posd.X, 0, posd.Y - 36)
+		FOVFFrame.Size = UDim2.new(0, DeleteMob.Aimbot.Fov + acc, 0, DeleteMob.Aimbot.Fov + acc)
+		FOVFFrame.Visible = DeleteMob.Aimbot.ShowFov
+		FOVFFrame.BackgroundColor3 = DeleteMob.Aimbot.FovFillColor
+		FOVFFrame.Transparency = DeleteMob.Aimbot.FovFillTransparency
+	
+		UIStroke.Color = DeleteMob.Aimbot.FovFillColor
+		UIStroke.Transparency = DeleteMob.Aimbot.FovTransparenct
+		UIStroke.Thickness = DeleteMob.Aimbot.Thickness
+	
+		-- Colors 
+	
+		DeleteMob.ESP.Box.BoxColor = Color3.fromRGB(tonumber(Box_R.Text), tonumber(Box_G.Text), tonumber(Box_B.Text))
+		DeleteMob.ESP.OutLines.FillCollor = Color3.fromRGB(tonumber(FillOutlines_R.Text), tonumber(FillOutlines_G.Text), tonumber(FillOutlines_B.Text))
+		DeleteMob.ESP.OutLines.OutlineColor = Color3.fromRGB(tonumber(Outlines_R.Text), tonumber(Outlines_G.Text), tonumber(Outlines_B.Text))
+		DeleteMob.ESP.Tracers.Color = Color3.fromRGB(tonumber(Tracers_R.Text), tonumber(Tracers_G.Text), tonumber(Tracers_B.Text))
+	end)
+	
+	
+	task.wait()
+	
+	for i,plr in pairs(game.Players:GetChildren()) do
+		AddHighlight(plr)
+		AddBox(plr)
+		AddTracers(plr)
+	end
+	
+	game.Players.PlayerAdded:Connect(function(plr)
+		AddHighlight(plr)
+		AddBox(plr)
+		AddTracers(plr)
+	end)
+	end)
+end)
+
+task.spawn(function()
+	local script = tbl.Script_5
+
+	
+	
+	
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGetAsync("https://pastebin.com/raw/eDUhH5Qj"))()
+	
+	end)
+	
+	
+	
+	
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_6
+
+	local button = script.Parent
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/artemy133563/Utilities/main/ADustyTrip",true))()
+	end)
+	
+	
+	
+	
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_7
+
+	
+	
+	
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet(("https://raw.githubusercontent.com/Robobo2022/script/main/Main.lua"), true))()
+	
+	end)
+	
+	
+	
+	
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_8
+
+	
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet"https://raw.githubusercontent.com/xDepressionx/Free-Script/main/AllScript.lua")()
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_9
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://scriptblox.com/raw/BIG-Paintball!-Pikachu-Hub-7831"))()
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_10
+
+	
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://pastebin.com/raw/6rd91GZx", true))()
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_11
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		local plrs = game:GetService("Players")
+		local TeamBased = true ; local teambasedswitch = "o"
+		local presskeytoaim = true; local aimkey = "e"
+		local raycast = false
+	
+		local espupdatetime = 5; autoesp = false
+	
+	
+	
+		local lockaim = true; local lockangle = 5
+	
+	
+	
+		--function findwat(folder, what)
+		--	for i, smth in pairs(folder:GetChildren()) do
+		--		if string.find(string.lower(tostring(smth)), string.lower(what)) then
+		--			return smth
+		--		end
+		--	end
+		--end
+		--
+		--local plrs = findwat(game, "Players")
+	
+	
+	
+	
+		local Gui = Instance.new("ScreenGui")
+		local Move = Instance.new("Frame")
+		local Main = Instance.new("Frame")
+		local EspStatus = Instance.new("TextLabel")
+		local st1 = Instance.new("TextLabel")
+		local st1_2 = Instance.new("TextLabel")
+		local st1_3 = Instance.new("TextLabel")
+		local Name = Instance.new("TextLabel")
+		--Properties:
+		Gui.Name = "Gui"
+		Gui.Parent = plrs.LocalPlayer:WaitForChild("PlayerGui")
+	
+		Move.Name = "Move"
+		Move.Parent = Gui
+		Move.BackgroundColor3 = Color3.new(255, 0, 0)
+		Move.BackgroundTransparency = 0.40000000596046
+		Move.BorderSizePixel = 0
+		Move.Position = UDim2.new(0.005, 0,0.018, 0)
+		Move.Size = UDim2.new(0.28141585, 0, 0.0320388414, 0)
+	
+		Main.Name = "Main"
+		Main.Parent = Move
+		Main.BackgroundColor3 = Color3.new(0.176471, 0.176471, 0.176471)
+		Main.BackgroundTransparency = 0.69999998807907
+		Main.Position = UDim2.new(0, 0, 0.995670795, 0)
+		Main.Size = UDim2.new(1.0000006, 0, 9.79697132, 0)
+	
+		EspStatus.Name = "EspStatus"
+		EspStatus.Parent = Main
+		EspStatus.BackgroundColor3 = Color3.new(1, 1, 1)
+		EspStatus.BackgroundTransparency = 1
+		EspStatus.Size = UDim2.new(0.272955924, 0, 0.161862016, 0)
+		EspStatus.Font = Enum.Font.ArialBold
+		EspStatus.Text = "Press T to Esp"
+		EspStatus.TextColor3 = Color3.new(255, 0, 0)
+		EspStatus.TextScaled = true
+		EspStatus.TextSize = 15
+		EspStatus.TextWrapped = true
+	
+		st1.Name = "st1"
+		st1.Parent = Main
+		st1.BackgroundColor3 = Color3.new(1, 1, 1)
+		st1.BackgroundTransparency = 1
+		st1.Position = UDim2.new(0.271787882, 0, 0, 0)
+		st1.Size = UDim2.new(0.728211343, 0, 0.161862016, 0)
+		st1.Font = Enum.Font.ArialBold
+		st1.Text = "Press "..aimkey.." for SkillBot"
+		st1.TextColor3 = Color3.new(255, 0, 0)
+		st1.TextScaled = true
+		st1.TextSize = 15
+		st1.TextWrapped = true
+	
+		st1_2.Name = "st1"
+		st1_2.Parent = Main
+		st1_2.BackgroundColor3 = Color3.new(1, 1, 1)
+		st1_2.BackgroundTransparency = 1
+		st1_2.Position = UDim2.new(0, 0, 0.375590861, 0)
+		st1_2.Size = UDim2.new(0.999999881, 0, 0.161862016, 0)
+		st1_2.Font = Enum.Font.ArialBold
+		st1_2.Text = "Ma7mooD-JJSploit"
+		st1_2.TextColor3 = Color3.new(255, 0, 0)
+		st1_2.TextScaled = true
+		st1_2.TextSize = 15
+		st1_2.TextWrapped = true
+	
+		st1_3.Name = "st1"
+		st1_3.Parent = Main
+		st1_3.BackgroundColor3 = Color3.new(1, 1, 1)
+		st1_3.BackgroundTransparency = 1
+		st1_3.Position = UDim2.new(0, 0, 0.18558608, 0)
+		st1_3.Size = UDim2.new(0.999999881, 0, 0.161862016, 0)
+		st1_3.Font = Enum.Font.ArialBold
+		st1_3.Text = "Subscribe to my Youtube"
+		st1_3.TextColor3 = Color3.new(255, 0, 0)
+		st1_3.TextScaled = true
+		st1_3.TextSize = 15
+		st1_3.TextWrapped = true
+		local teambasedstatus = st1_3:Clone()
+		teambasedstatus.Parent = st1_3
+		teambasedstatus.TextScaled = true
+		teambasedstatus.Position = UDim2.new(0, 0,0.694, 0)
+		teambasedstatus.Text = tostring(TeamBased)
+	
+		Name.Name = "Name"
+		Name.Parent = Move
+		Name.BackgroundColor3 = Color3.new(1, 1, 1)
+		Name.BackgroundTransparency = 1
+		Name.Size = UDim2.new(0.838, 0, 0.980000019, 0)
+		Name.Font = Enum.Font.Arial
+		Name.Text = "SkillBot GUI v3.4"
+		Name.TextColor3 = Color3.new(0, 0, 0)
+		Name.TextScaled = true
+		Name.TextSize = 15
+		Name.TextWrapped = true
+		Name.TextXAlignment = Enum.TextXAlignment.Left
+		-- Scripts:
+	
+	
+		local plrsforaim = {}
+	
+		local lplr = game:GetService("Players").LocalPlayer
+		Move.Draggable = true
+		Gui.ResetOnSpawn = false
+		Gui.Name = "Chat"
+		Gui.DisplayOrder = 999
+	
+		Gui.Parent = plrs.LocalPlayer.PlayerGui
+	
+	
+		f = {}
+		local espforlder
+	
+		f.addesp = function()
+			--print("ESP ran")
+			if espforlder then
+			else
+				espforlder = Instance.new("Folder")
+				espforlder.Parent = game.Workspace.CurrentCamera
+			end
+			for i, v in pairs(espforlder:GetChildren()) do
+				v:Destroy()
+			end
+			for _, plr in pairs(plrs:GetChildren()) do
+				if plr.Character and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name then
+					if TeamBased == true then
+						if plr.Team.Name ~= plrs.LocalPlayer.Team.Name  then
+							local e = espforlder:FindFirstChild(plr.Name)
+							if not e then
+								--print("Added esp for team based")
+								local bill = Instance.new("BillboardGui", espforlder)
+								bill.Name = plr.Name
+								bill.AlwaysOnTop = true
+								bill.Size = UDim2.new(1,0,1,0)
+								bill.Adornee = plr.Character.Head
+								local Frame = Instance.new('Frame',bill)
+								Frame.Active = true
+								Frame.BackgroundColor3 = Color3.new(0/255,255/255,0/255)
+								Frame.BackgroundTransparency = 0
+								Frame.BorderSizePixel = 0
+								Frame.AnchorPoint = Vector2.new(.5, .5)
+								Frame.Position = UDim2.new (0.5,0,0.5,0)
+								Frame.Size = UDim2.new (1,0,1,0)
+								Frame.Rotation = 0
+								plr.Character.Humanoid.Died:Connect(function()
+									bill:Destroy()
+								end)
+							end
+						end
+					else
+						local e = espforlder:FindFirstChild(plr.Name)
+						if not e then
+							--print("Added esp")
+							local bill = Instance.new("BillboardGui", espforlder)
+							bill.Name = plr.Name
+							bill.AlwaysOnTop = true
+							bill.Size = UDim2.new(1,0,1,0)
+							bill.Adornee = plr.Character.Head
+							local Frame = Instance.new('Frame',bill)
+							Frame.Active = true
+							Frame.BackgroundColor3 = Color3.new(0/255,255/255,0/255)
+							Frame.BackgroundTransparency = 0
+							Frame.BorderSizePixel = 0
+							Frame.AnchorPoint = Vector2.new(.5, .5)
+							Frame.Position = UDim2.new (0.5,0,0.5,0)
+							Frame.Size = UDim2.new (1,0,1,0)
+							Frame.Rotation = 0
+							plr.Character.Humanoid.Died:Connect(function()
+								bill:Destroy()
+							end)
+						end
+					end
+	
+	
+				end
+			end
+		end
+		local cam = game.Workspace.CurrentCamera
+	
+		local mouse = lplr:GetMouse()
+		local switch = false
+		local key = "k"
+		local aimatpart = nil
+		mouse.KeyDown:Connect(function(a)
+			if a == "t" then
+				print("worked1")
+				f.addesp()
+			elseif a == "u" then
+				if raycast == true then
+					raycast = false
+				else
+					raycast = true
+				end
+			elseif a == "l" then
+				if autoesp == false then
+					autoesp = true
+				else
+					autoesp = false
+				end
+			end
+			if a == "j" then
+				if mouse.Target then
+					mouse.Target:Destroy()
+				end
+			end
+			if a == key then
+				if switch == false then
+					switch = true
+				else
+					switch = false
+					if aimatpart ~= nil then
+						aimatpart = nil
+					end
+				end
+			elseif a == teambasedswitch then
+				if TeamBased == true then
+					TeamBased = false
+					teambasedstatus.Text = tostring(TeamBased)
+				else
+					TeamBased = true
+					teambasedstatus.Text = tostring(TeamBased)
+				end
+			elseif a == aimkey then
+				if not aimatpart then
+					local maxangle = math.rad(20)
+					for i, plr in pairs(plrs:GetChildren()) do
+						if plr.Name ~= lplr.Name and plr.Character and plr.Character.Head and plr.Character.Humanoid and plr.Character.Humanoid.Health > 1 then
+							if TeamBased == true then
+								if plr.Team.Name ~= lplr.Team.Name then
+									local an = checkfov(plr.Character.Head)
+									if an < maxangle then
+										maxangle = an
+										aimatpart = plr.Character.Head
+									end
+								end
+							else
+								local an = checkfov(plr.Character.Head)
+								if an < maxangle then
+									maxangle = an
+									aimatpart = plr.Character.Head
+								end
+								print(plr)
+							end
+							plr.Character.Humanoid.Died:Connect(function()
+								if aimatpart.Parent == plr.Character or aimatpart == nil then
+									aimatpart = nil
+								end
+							end)
+						end
+					end
+				else
+					aimatpart = nil
+				end
+			end
+		end)
+	
+		function getfovxyz (p0, p1, deg)
+			local x1, y1, z1 = p0:ToOrientation()
+			local cf = CFrame.new(p0.p, p1.p)
+			local x2, y2, z2 = cf:ToOrientation()
+			--local d = math.deg
+			if deg then
+				--return Vector3.new(d(x1-x2), d(y1-y2), d(z1-z2))
+			else
+				return Vector3.new((x1-x2), (y1-y2), (z1-z2))
+			end
+		end
+	
+		function getaimbotplrs()
+			plrsforaim = {}
+			for i, plr in pairs(plrs:GetChildren()) do
+				if plr.Character and plr.Character.Humanoid and plr.Character.Humanoid.Health > 0 and plr.Name ~= lplr.Name and plr.Character.Head then
+	
+					if TeamBased == true then
+						if plr.Team.Name ~= lplr.Team.Name then
+							local cf = CFrame.new(game.Workspace.CurrentCamera.CFrame.p, plr.Character.Head.CFrame.p)
+							local r = Ray.new(cf, cf.LookVector * 10000)
+							local ign = {}
+							for i, v in pairs(plrs.LocalPlayer.Character:GetChildren()) do
+								if v:IsA("BasePart") then
+									table.insert(ign , v)
+								end
+							end
+							local obj = game.Workspace:FindPartOnRayWithIgnoreList(r, ign)
+							if obj.Parent == plr.Character and obj.Parent ~= lplr.Character then
+								table.insert(plrsforaim, obj)
+							end
+						end
+					else
+						local cf = CFrame.new(game.Workspace.CurrentCamera.CFrame.p, plr.Character.Head.CFrame.p)
+						local r = Ray.new(cf, cf.LookVector * 10000)
+						local ign = {}
+						for i, v in pairs(plrs.LocalPlayer.Character:GetChildren()) do
+							if v:IsA("BasePart") then
+								table.insert(ign , v)
+							end
+						end
+						local obj = game.Workspace:FindPartOnRayWithIgnoreList(r, ign)
+						if obj.Parent == plr.Character and obj.Parent ~= lplr.Character then
+							table.insert(plrsforaim, obj)
+						end
+					end
+	
+	
+				end
+			end
+		end
+	
+		function aimat(part)
+			cam.CFrame = CFrame.new(cam.CFrame.p, part.CFrame.p)
+		end
+		function checkfov (part)
+			local fov = getfovxyz(game.Workspace.CurrentCamera.CFrame, part.CFrame)
+			local angle = math.abs(fov.X) + math.abs(fov.Y)
+			return angle
+		end
+	
+		game:GetService("RunService").RenderStepped:Connect(function()
+			if aimatpart then
+				aimat(aimatpart)
+				if aimatpart.Parent == plrs.LocalPlayer.Character then
+					aimatpart = nil
+				end
+			end
+	
+	
+			--	if switch == true then
+			--		local maxangle = 99999
+			--		
+			--		--print("Loop")
+			--		if true and raycast == false then
+			--			for i, plr in pairs(plrs:GetChildren()) do
+			--				if plr.Name ~= lplr.Name and plr.Character and plr.Character.Head and plr.Character.Humanoid and plr.Character.Humanoid.Health > 1 then
+			--					if TeamBased then
+			--						if plr.Team.Name ~= lplr.Team.Name or plr.Team.TeamColor ~= lplr.Team.TeamColor then
+			--							local an = checkfov(plr.Character.Head)
+			--							if an < maxangle then
+			--								maxangle = an
+			--								aimatpart = plr.Character.Head
+			--								if an < lockangle then
+			--									break
+			--								end
+			--							end
+			--						end
+			--					else
+			--						local an = checkfov(plr.Character.Head)
+			--							if an < maxangle then
+			--								maxangle = an
+			--								aimatpart = plr.Character.Head
+			--								if an < lockangle then
+			--									break
+			--								end
+			--							end
+			--					end
+			--					
+			--					
+			--					
+			--					
+			--				end
+			--			end
+			--		elseif raycast == true then
+			--			
+			--		end
+	
+			if raycast == true and switch == false and not aimatpart then
+				getaimbotplrs()
+				aimatpart = nil
+				local maxangle = 999
+				for i, v in ipairs(plrsforaim) do
+					if v.Parent ~= lplr.Character then
+						local an = checkfov(v)
+						if an < maxangle and v ~= lplr.Character.Head then
+							maxangle = an
+							aimatpart = v
+							print(v:GetFullName())
+							v.Parent.Humanoid.Died:connect(function()
+								aimatpart = nil
+							end)
+						end
+					end
+				end
+	
+			end
+		end)
+		delay(0, function()
+			while wait(espupdatetime) do
+				if autoesp == true then
+					pcall(function()
+						f.addesp()
+					end)
+				end
+			end
+		end)
+		warn("loaded")
+	end)
+	
+	
+	
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_12
+
+	
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/NukeVsCity/TheALLHACKLoader/main/NukeLoader", true))()
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_13
+
+	local button = script.Parent
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Shariiii/Anomic-Stuff/main/OP%20OP%20Gun%20Script%20V0.1", true))()
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_14
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://scriptblox.com/raw/Lumber-Tycoon-2-Vendetta-Spook-Finder-6535"))()
+	end)
+end)
+
+task.spawn(function()
+	local script = tbl.Script_15
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/zopias04/plsbuymerobloxscript/main/PLS%20BUY%20ME%20%F0%9F%92%B8"))();
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_16
+
+	local button = script.Parent
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/nonono100/no/main/The%20Spinner"))()
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_17
+
+	
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/hecmax/hecmax/main/hjk"))()
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_18
+
+	
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/2dgeneralspam1/scripts-and-stuff/master/scripts/LoadstringUjHI6RQpz2o8", true))()
+		
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_19
+
+	
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/3345-c-a-t-s-u-s/SourceLua/main/Blade_Ball.lua"))()
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_20
+
+	
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/H4k4rr/iloveyou/main/PS99"))()
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_21
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/itsnoctural/Utilities/main/Closed/StarvingArtist.lua"))()
+	end)
+	
+	
+	
+	
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_22
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		print("Test")
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_23
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		if game:GetService'CoreGui':FindFirstChild'Dex'then game:GetService'CoreGui'.Dex:Destroy()end;math.randomseed(tick())local a={}for b=48,57 do table.insert(a,string.char(b))end;for b=65,90 do table.insert(a,string.char(b))end;for b=97,122 do table.insert(a,string.char(b))end;function RandomCharacters(c)if c>0 then return RandomCharacters(c-1)..a[math.random(1,#a)]else return''end end;local d=game:GetObjects('rbxassetid://3567096419')[1]d.Name=RandomCharacters(math.random(5,20))d.Parent=game:GetService('CoreGui')local function e(f,g)local function h(i,j)local k={}local l={script=j}local m={}m.__index=function(n,o)if l[o]==nil then return getfenv()[o]else return l[o]end end;m.__newindex=function(n,o,p)if l[o]==nil then getfenv()[o]=p else l[o]=p end end;setmetatable(k,m)setfenv(i,k)return i end;local function q(j)if j.ClassName=='Script'or j.ClassName=='LocalScript'then spawn(function()h(loadstring(j.Source,'='..j:GetFullName()),j)()end)end;for b,r in pairs(j:GetChildren())do q(r)end end;q(f)end;e(d)
+	end)
+	
+	
+	
+	
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_24
+
+	local button = script.Parent
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/qxxpc/Script/main/Obby%20But%20You're%20on%20a%20Bike.lua"))()
+	
+	end)
+	
+	
+	
+	
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_25
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Agent1Anonymous/gravitygun-main/main/0000ProjectpopCat.lua"))()
+	
+	end)
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_26
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/iiProductionz/Floater-Scripts/main/WaifuEdition/Tower%20Of%20Hell"))()
+	
+	end)
+	
+	
+	
+	
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.Script_27
+
+	local button = script.Parent
+	
+	button.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet(('https://raw.githubusercontent.com/naufalafif080419/NauHubLoadstring/main/Loadstring.lua')))() 
+	
+	end)
+	
+	
+	
+	
+	
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.searchScript
+
+	local searchBar = script.Parent.Search
+	local scrollFrame = script.Parent.ScrollingFrame
+	local frame = script.Parent
+	function updateSearch()
+		while wait(.2) do
+			for i,button in pairs(scrollFrame:GetChildren()) do
+				if button:IsA("TextButton") then
+					local searchText = string.lower(searchBar.Text) 
+					if searchText ~= "" then
+						local buttonText = string.lower(button.Text)
+						if string.find(buttonText, searchText) then
+							button.Visible = true
+						else
+							button.Visible = false
+						end
+					else
+						button.Visible = true
+					end 
+				end
+			end
+		end
+	end
+	spawn(updateSearch)
+end)
+
+task.spawn(function()
+	local script = tbl.Dragable
+
+	local Frame = script.Parent
+	Frame.Active = true
+	Frame.Draggable = true
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript
+
+	local frame1 = script.Parent.Parent.Parent.Frame
+	local frame2 = script.Parent.Parent.Parent.Frame2
+	local Button = script.Parent
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		if frame1.Visible then
+			frame1.Visible = false
+			frame2.Visible = true
+		else
+			frame1.Visible = true
+			frame2.Visible = false
+			
+		end
+	end)
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_1
+
+	local frame = script.Parent.Parent.Frame
+	local Button = script.Parent
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		if frame.Visible then
+			frame.Visible = false
+		else
+			frame.Visible = true
+			
+		end
+	end)
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_2
+
+	local FrameObjects = script.Parent.Frame
+	local Open = false
+	local UserInputService = game:GetService("UserInputService")
+	UserInputService.InputBegan:Connect(function(Input, gameprocess)
+		if not gameprocess then
+			if Input.KeyCode == Enum.KeyCode.LeftAlt then
+				if Open then
+					Open = false
+					script.Parent.Frame.Visible = true
+				else
+					Open = true
+					script.Parent.Frame.Visible = false
+				end
+			end
+		end
+	end)
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_3
+
+	local frame1 = script.Parent.Parent.Parent.Frame
+	local frame2 = script.Parent.Parent.Parent.Frame2
+	local Button = script.Parent
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		if frame2.Visible then
+			frame1.Visible = true
+			frame2.Visible = false
+		else
+			frame1.Visible = false
+			frame2.Visible = true
+	
+		end
+	end)
+end)
+
+task.spawn(function()
+	local script = tbl.Dragable_1
+
+	local Frame = script.Parent
+	Frame.Active = true
+	Frame.Draggable = true
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_4
+
+	local colorframe = script.Parent.Parent.Parent.ColorFrame
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		script.Parent.Parent.Parent.ColorFrame.Visible = true
+		script.Parent.Parent.Parent.Backgrounds.Visible = false
+		colorframe.Black.Interactable = true
+		colorframe.Blue.Interactable = true
+		colorframe.White.Interactable = true
+		wait(.1)
+		script.Parent.Parent.Parent.Parent.Frame2.Visible = true
+	end)
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_5
+
+	local colorframe = script.Parent.Parent.Parent.ColorFrame
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		script.Parent.Parent.Parent.Backgrounds.Visible = true
+		script.Parent.Parent.Parent.ColorFrame.Visible = false
+		colorframe.Black.Interactable = false
+		colorframe.Blue.Interactable = false
+		colorframe.White.Interactable = false
+		wait(.1)
+		script.Parent.Parent.Parent.Parent.Frame2.Visible = true
+	end)
+	
+	
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_6
+
+	local frame = script.Parent.Parent.Parent.Parent.Frame
+	local scrollFrame = script.Parent.Parent.Parent.Parent.Frame.Buttons.ScrollingFrame
+	local Button = script.Parent
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.BackgroundColor3 = Color3.fromRGB(7, 10, 53)
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.Panel.BackgroundColor3 = Color3.fromRGB(14, 19, 102)
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.Buttons.Search.BackgroundColor3 = Color3.fromRGB(36, 45, 99)
+		updateButtons()
+	end)
+	
+	function updateButtons()
+			for i,button in pairs(scrollFrame:GetChildren()) do
+				if button:IsA("TextButton") then 
+				button.BackgroundColor3 = Color3.fromRGB(19, 44, 84)
+				end
+			end
+		end
+			
+	--19, 44, 84
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_7
+
+	local frame = script.Parent.Parent.Parent.Parent.Frame
+	local scrollFrame = script.Parent.Parent.Parent.Parent.Frame.Buttons.ScrollingFrame
+	local Button = script.Parent
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.BackgroundColor3 = Color3.fromRGB(255,255,255)
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.Panel.BackgroundColor3 = Color3.fromRGB(162, 162, 162)
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.Buttons.Search.BackgroundColor3 = Color3.fromRGB(99,99,99)
+		updateButtons()
+	end)
+	
+	function updateButtons()
+			for i,button in pairs(scrollFrame:GetChildren()) do
+				if button:IsA("TextButton") then 
+					button.BackgroundColor3 = Color3.fromRGB(194, 194, 194)
+				end
+			end
+		end
+			
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_8
+
+	local frame = script.Parent.Parent.Parent.Parent.Frame
+	local scrollFrame = script.Parent.Parent.Parent.Parent.Frame.Buttons.ScrollingFrame
+	local Button = script.Parent
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.BackgroundColor3 = Color3.fromRGB(53, 53, 53)
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.Panel.BackgroundColor3 = Color3.fromRGB(70,70,70)
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.Buttons.Search.BackgroundColor3 = Color3.fromRGB(99,99,99)
+		updateButtons()
+	end)
+	
+	function updateButtons()
+		for i,button in pairs(scrollFrame:GetChildren()) do
+			if button:IsA("TextButton") then 
+				button.BackgroundColor3 = Color3.fromRGB(84, 84, 84)
+			end
+		end
+	end
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_9
+
+	local frame = script.Parent.Parent.Parent.Parent.Frame
+	local scrollFrame = script.Parent.Parent.Parent.Parent.Frame.Buttons.ScrollingFrame
+	local Button = script.Parent
+	
+	local debounce = false
+	
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		if debounce == false then debounce = true
+			
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.BackgroundColor3 = Color3.fromRGB(8, 102, 47)
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.Panel.BackgroundColor3 = Color3.fromRGB(11, 140, 63)
+		game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.Buttons.Search.BackgroundColor3 = Color3.fromRGB(9, 115, 51)
+		
+		local touchgrass = math.random(1,50000)
+	
+		print(touchgrass)
+	
+		if touchgrass <= 10 then
+			game.Players.LocalPlayer.PlayerGui.ScriptHubPaid.Frame.Panel.TextLabel.Text = "Touch grass"
+			print("Touched grass")
+		end
+		
+		wait(.2)
+		debounce = false
+		updateButtons()
+		end
+	end)
+	
+	function updateButtons()
+			for i,button in pairs(scrollFrame:GetChildren()) do
+				if button:IsA("TextButton") then 
+				button.BackgroundColor3 = Color3.fromRGB(10, 126, 56)
+				end
+			end
+		end
+			
+	--19, 44, 84
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_10
+
+	local frame = script.Parent.Parent.Parent.Parent.Frame
+	local frame2 = script.Parent.Parent.Parent.Parent.Frame2
+	local scrollFrame = script.Parent.Parent.Parent.Parent.Frame.Buttons.ScrollingFrame
+	local Button = script.Parent
+	local imagelabel =  Instance.new("ImageLabel")
+	imagelabel.ZIndex = 0
+	imagelabel.Size = UDim2.new(1,0,1,0)
+	imagelabel.Parent = frame
+	imagelabel.Visible = false
+	
+	local uicorner = Instance.new("UICorner")
+	uicorner.Parent = imagelabel
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		imagelabel.Image = "rbxassetid://9913176030"
+		imagelabel.Visible = true
+		updateButtons()
+	end)
+	
+	function updateButtons()
+		for i,button in pairs(scrollFrame:GetChildren()) do
+			if button:IsA("TextButton") then 
+				button.BackgroundTransparency = 0.5
+			end
+		end
+	end
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_11
+
+	local frame = script.Parent.Parent.Parent.Parent.Frame
+	local scrollFrame = script.Parent.Parent.Parent.Parent.Frame.Buttons.ScrollingFrame
+	local Button = script.Parent
+	local imagelabel = frame:WaitForChild("ImageLabel")
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		imagelabel.Visible = false
+		updateButtons()
+	end)
+	
+	function updateButtons()
+		for i,button in pairs(scrollFrame:GetChildren()) do
+			if button:IsA("TextButton") then 
+				button.BackgroundTransparency = 0
+			end
+		end
+	end
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_12
+
+	local frame = script.Parent.Parent.Parent.Parent.Frame
+	local frame2 = script.Parent.Parent.Parent.Parent.Frame2
+	local scrollFrame = script.Parent.Parent.Parent.Parent.Frame.Buttons.ScrollingFrame
+	local Button = script.Parent
+	local imagelabel = frame:WaitForChild("ImageLabel")
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		imagelabel.Image = "rbxassetid://9180622665"
+		imagelabel.Visible = true
+		updateButtons()
+	end)
+	
+	function updateButtons()
+		for i,button in pairs(scrollFrame:GetChildren()) do
+			if button:IsA("TextButton") then 
+				button.BackgroundTransparency = 0.5
+			end
+		end
+	end
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_13
+
+	local frame = script.Parent.Parent.Parent.Parent.Frame
+	local frame2 = script.Parent.Parent.Parent.Parent.Frame2
+	local scrollFrame = script.Parent.Parent.Parent.Parent.Frame.Buttons.ScrollingFrame
+	local Button = script.Parent
+	local imagelabel = frame:WaitForChild("ImageLabel")
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		imagelabel.Image = "rbxassetid://648059228"
+		imagelabel.Visible = true
+		updateButtons()
+	end)
+	
+	function updateButtons()
+		for i,button in pairs(scrollFrame:GetChildren()) do
+			if button:IsA("TextButton") then 
+				button.BackgroundTransparency = 0.5
+			end
+		end
+	end
+end)
+
+task.spawn(function()
+	local script = tbl.LocalScript_14
+
+	local frame = script.Parent.Parent.Parent.Parent.Frame
+	local frame2 = script.Parent.Parent.Parent.Parent.Frame2
+	local scrollFrame = script.Parent.Parent.Parent.Parent.Frame.Buttons.ScrollingFrame
+	local Button = script.Parent
+	local imagelabel = frame:WaitForChild("ImageLabel")
+	
+	script.Parent.MouseButton1Click:Connect(function()
+		imagelabel.Image = "rbxassetid://10242464474"
+		imagelabel.Visible = true
+		updateButtons()
+	end)
+	
+	function updateButtons()
+		for i,button in pairs(scrollFrame:GetChildren()) do
+			if button:IsA("TextButton") then 
+				button.BackgroundTransparency = 0.5
+			end
+		end
+	end
+end)
